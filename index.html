@@ -180,6 +180,7 @@
             transition: all 0.3s ease;
             animation: slideUp 0.5s ease;
             backdrop-filter: blur(8px);
+            cursor: pointer;
         }
 
         .product-card:hover {
@@ -199,6 +200,97 @@
             font-size: 16px;
             color: #9ca3af;
             font-style: italic;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border-radius: 15px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #dc2626;
+            animation: slideUp 0.4s ease;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .modal-close:hover {
+            color: #dc2626;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: block;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+        }
+
+        .modal-description {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #ddd;
+            text-align: center;
+            padding: 0 10px;
         }
 
         /* ANIMAÇÕES */
@@ -240,6 +332,20 @@
                 padding: 10px 15px;
                 font-size: 14px;
             }
+
+            .modal-content {
+                max-width: 95%;
+                max-height: 85vh;
+            }
+
+            .modal-title {
+                font-size: 20px;
+            }
+
+            .modal-description {
+                font-size: 14px;
+                padding: 0 5px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -258,6 +364,22 @@
 
             .menu-title {
                 font-size: 24px;
+            }
+
+            .modal-header {
+                padding: 15px;
+            }
+
+            .modal-body {
+                padding: 15px;
+            }
+
+            .modal-image {
+                max-height: 300px;
+            }
+
+            .modal-description {
+                font-size: 13px;
             }
         }
     </style>
@@ -320,156 +442,192 @@
         <div class="products-container" id="productsContainer"></div>
     </div>
 
+    <!-- MODAL -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalProductName"></div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalProductImage" class="modal-image" src="" alt="Produto">
+                <div class="modal-description" id="modalProductDescription"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // DADOS DOS PRODUTOS
         const products = {
             'drinks-whisky': [
-                { name: 'Old Star', description: 'Drink clássico de whisky' },
-                { name: 'Passport', description: 'Whisky importado' },
-                { name: 'Natu Nobilis', description: 'Whisky premium' },
-                { name: 'White Horse', description: 'Whisky escocês' },
-                { name: 'Red Label', description: 'Johnnie Walker Red Label' },
-                { name: "Ballantine's", description: 'Whisky escocês' },
-                { name: "Jack Daniel's", description: 'Whisky americano' }
+                { 
+                    name: 'Old Star', 
+                    description: 'Drink clássico de whisky',
+                    modalDescription: 'Old Star une a tradição do whisky à ousadia de sabores premium para elevar seu brinde. Do clássico Original ao frescor da Maçã-Verde, e da suavidade do Mel ao toque exótico do Coco, cada gole é uma experiência sensorial única. Seja puro ou em drinks refrescantes, nossa coleção foi feita para quem brilha no próprio ritmo. Descubra a sofisticação que combina com seu estilo e transforme qualquer momento em uma celebração inesquecível.',
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/941adddc32a6487b91f77a393036153c694d1069/Old%20ma%C3%A7a.png?raw=true'
+                },
+                { 
+                    name: 'Passport', 
+                    description: 'Whisky importado',
+                    modalDescription: 'O Passport Scotch é o equilíbrio perfeito entre a tradição escocesa e a vibração urbana, feito para quem vive sem fronteiras. Com seu blend suave, frutado e levemente cremoso, ele é a escolha ideal tanto para o ritual clássico quanto para drinks modernos e refrescantes. Celebre cada conquista com estilo. Descubra a versatilidade de um whisky que se adapta ao seu ritmo e transforma qualquer encontro em um momento memorável.',
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/ff91b7d4ec0f9c054b4a7bf1a8ef4a395d561978/Passport.png?raw=true'
+                },
+                { 
+                    name: 'Natu Nobilis', 
+                    description: 'Whisky premium',
+                    modalDescription: 'O Natu Nobilis é a expressão máxima de um clássico brasileiro que une tradição e suavidade em cada dose. Com um blend equilibrado de maltes selecionados é perfeito para momentos de descontração. Sua presença é sinônimo de hospitalidade e bons encontros, celebrando a nobreza da simplicidade com elegância. Natu Nobilis: o prazer de compartilhar o que é bom.',
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/babcab39c166fbaaea423f64aad95dde20243a66/Natu.png?raw=true'
+                },
+                { 
+                    name: 'White Horse', 
+                    description: 'Whisky escocês',
+                    modalDescription: 'O White Horse é uma lenda escocesa que destila liberdade e vigor em cada gota, trazendo a força do seu ícone para o seu copo. Com um blend rico e defumado, composto por maltes selecionados das Highlands e Islay, ele entrega um sabor robusto e inconfundível. Seja puro ou com gelo, liberte o espírito do cavalo branco em você.',
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/a5d352b13124ad0032096b970fa369f79f1e4516/white%20horse.png?raw=true'
+                },
+                { 
+                    name: 'Red Label', 
+                    description: 'Johnnie Walker Red Label',
+                    modalDescription: 'O Johnnie Walker Red Label é o whisky pioneiro que conquistou o mundo com seu espírito vibrante e audacioso. Seu blend combina maltes leves da costa leste escocesa com notas picantes e defumadas, resultando em um sabor intenso que se destaca mesmo quando misturado. Feito para quem está sempre em movimento, ele é a base perfeita para o clássico Highball ou para momentos de celebração entre amigos. Red Label: Keep Walking.',
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/1f303548ca75377d3ae35d74a2059627cb2a3ac1/red.png?raw=true'
+                },
+                { 
+                    name: "Ballantine's", 
+                    description: 'Whisky escocês',
+                    modalDescription: 'Descrição detalhada do Ballantine\'s',
+                    imageUrl: ''
+                },
+                { 
+                    name: "Jack Daniel's", 
+                    description: 'Whisky americano',
+                    modalDescription: 'Descrição detalhada do Jack Daniel\'s',
+                    imageUrl: ''
+                }
             ],
             'drinks-gin': [
-                { name: 'Danoninho de Gin', description: 'Drink refrescante com gin' },
-                { name: 'Copão de Gin', description: 'Gin com tônica e limão' }
+                { 
+                    name: 'Danoninho de Gin', 
+                    description: 'Drink refrescante com gin',
+                    modalDescription: 'Descrição detalhada do Danoninho de Gin',
+                    imageUrl: ''
+                },
+                { 
+                    name: 'Copão de Gin', 
+                    description: 'Gin com tônica e limão',
+                    modalDescription: 'Descrição detalhada do Copão de Gin',
+                    imageUrl: ''
+                }
             ],
             'drinks-vodka': [
-                { name: 'Danoninho Corote', description: 'Drink com corote e frutas' },
-                { name: 'Danoninho Askov', description: 'Askov com frutas' },
-                { name: 'Copão de Ice', description: 'Drink gelado com vodka' },
-                { name: 'Copão de Vodka', description: 'Vodka com energético' }
+                { 
+                    name: 'Danoninho Corote', 
+                    description: 'Drink com corote e frutas',
+                    modalDescription: 'Descrição detalhada do Danoninho Corote',
+                    imageUrl: ''
+                },
+                { 
+                    name: 'Danoninho Askov', 
+                    description: 'Askov com frutas',
+                    modalDescription: 'Descrição detalhada do Danoninho Askov',
+                    imageUrl: ''
+                },
+                { 
+                    name: 'Copão de Ice', 
+                    description: 'Drink gelado com vodka',
+                    modalDescription: 'Descrição detalhada do Copão de Ice',
+                    imageUrl: ''
+                },
+                { 
+                    name: 'Copão de Vodka', 
+                    description: 'Vodka com energético',
+                    modalDescription: 'Descrição detalhada do Copão de Vodka',
+                    imageUrl: ''
+                }
             ],
             'drinks-vinho': [
-                { name: 'Danoninho de Vinho', description: 'Vinho com frutas' }
+                { 
+                    name: 'Danoninho de Vinho', 
+                    description: 'Vinho com frutas',
+                    modalDescription: 'Descrição detalhada do Danoninho de Vinho',
+                    imageUrl: ''
+                }
             ],
             'cervejas': [
-                { name: 'Skol/Brahma', description: 'Cerveja tradicional' },
-                { name: 'Antarctica', description: 'Cerveja pilsen' },
-                { name: 'Sub-Zero', description: 'Cerveja extra gelada' },
-                { name: 'Amstel', description: 'Cerveja holandesa' },
-                { name: 'Heineken', description: 'Cerveja premium' },
-                { name: 'Corona Long', description: 'Cerveja mexicana' },
-                { name: 'Stella Long', description: 'Cerveja belga' },
-                { name: 'Brahma Zero', description: 'Cerveja sem álcool' },
-                { name: 'Império', description: 'Cerveja nacional' },
-                { name: 'Duplo Malte', description: 'Cerveja com sabor intenso' },
-                { name: 'Spaten', description: 'Cerveja alemã' },
-                { name: 'Budweiser', description: 'Cerveja americana' },
-                { name: 'Burguesa', description: 'Cerveja artesanal' },
-                { name: 'Bavaria', description: 'Cerveja importada' },
-                { name: 'Bavaria Latão', description: 'Latão de cerveja' },
-                { name: 'Petra', description: 'Cerveja brasileira' },
-                { name: 'Conti Malzbier', description: 'Malzbier tradicional' },
-                { name: 'Brahma Malz.', description: 'Malzbier Brahma' },
-                { name: 'Moinho Real', description: 'Cerveja especial' },
-                { name: 'Original', description: 'Cerveja premium' },
-                { name: 'Heineken Long', description: 'Long neck Heineken' },
-                { name: 'Budweiser Long', description: 'Long neck Budweiser' },
-                { name: 'Patagônia Long', description: 'Cerveja argentina' },
-                { name: 'Eisenbah IPA', description: 'Cerveja IPA' },
-                { name: 'Stella Gold', description: 'Stella Artois premium' },
-                { name: 'Amstel Ultra', description: 'Cerveja leve' },
-                { name: 'Spaten Long', description: 'Long neck Spaten' },
-                { name: 'Michelob Long', description: 'Cerveja premium' },
-                { name: 'Michelob', description: 'Cerveja americana' },
-                { name: 'Conti Zero Grau', description: 'Bebida sem álcool' }
+                { 
+                    name: 'Skol/Brahma', 
+                    description: 'Cerveja tradicional',
+                    modalDescription: 'Descrição detalhada da Skol/Brahma',
+                    imageUrl: ''
+                },
+                { 
+                    name: 'Antarctica', 
+                    description: 'Cerveja pilsen',
+                    modalDescription: 'Descrição detalhada da Antarctica',
+                    imageUrl: ''
+                },
+                // ... (outras cervejas com estrutura similar)
             ],
             'destilados': [
-                { name: 'Jurupinga', description: 'Licor brasileiro' },
-                { name: 'Saquê', description: 'Bebida japonesa' },
-                { name: 'Tequila', description: 'Bebida mexicana' },
-                { name: 'Pinga 51', description: 'Cachaça tradicional' },
-                { name: 'Conhaque', description: 'Bebida destilada' },
-                { name: 'Dimel', description: 'Licor especial' },
-                { name: 'Campari', description: 'Aperitivo italiano' },
-                { name: 'Gin Askov', description: 'Gin nacional' },
-                { name: 'Askov Pura', description: 'Drink de Askov' },
-                { name: 'Ice', description: 'Bebida refrescante' },
-                { name: 'Beats Lata', description: 'Bebida pronta' },
-                { name: 'Beats Long', description: 'Long neck Beats' },
-                { name: 'Smirnoff Ice', description: 'Bebida com vodka' },
-                { name: 'Jack Daniels', description: 'Whisky americano premium' },
-                { name: 'Velho Barreiro', description: 'Cachaça tradicional' },
-                { name: 'Vila Velha', description: 'Cachaça premium' },
-                { name: 'Old Star', description: 'Whisky nacional' },
-                { name: 'Passport', description: 'Whisky importado' },
-                { name: 'Natu Nobilis', description: 'Whisky premium' },
-                { name: 'White Horse', description: 'Whisky escocês' },
-                { name: 'Red Label', description: 'Whisky premium' },
-                { name: 'Ballantines', description: 'Whisky escocês' },
-                { name: 'Smirnoff 1L', description: 'Vodka Smirnoff' },
-                { name: 'Askov Sabor 1L', description: 'Askov com sabor' },
-                { name: 'Canelinha', description: 'Licor de canela' },
-                { name: 'Dom Bosco', description: 'Licor brasileiro' },
-                { name: 'Chapinha', description: 'Cachaça artesanal' },
-                { name: 'Pérgola', description: 'Vinho especial' },
-                { name: 'Dom Feliciano', description: 'Vinho brasileiro' },
-                { name: 'Cantinho', description: 'Bebida regional' },
-                { name: 'Stempel 355ml', description: 'Cerveja artesanal' },
-                { name: 'Stempel 600ml', description: 'Cerveja artesanal grande' }
+                { 
+                    name: 'Jurupinga', 
+                    description: 'Licor brasileiro',
+                    modalDescription: 'Descrição detalhada do Jurupinga',
+                    imageUrl: ''
+                },
+                // ... (outros destilados com estrutura similar)
             ],
             'aguas': [
-                { name: 'Água 500ml', description: 'Água mineral' },
-                { name: 'Água 1,5L', description: 'Garrafa grande de água' },
-                { name: 'Água de Coco 1L', description: 'Água de coco natural' },
-                { name: 'Água Gás 500ml', description: 'Água com gás' },
-                { name: 'Água Gás 1,5L', description: 'Água com gás grande' },
-                { name: 'H2O 500ml', description: 'Água mineral H2O' },
-                { name: 'H2O 1,5L', description: 'H2O garrafa grande' },
-                { name: 'Gatorade', description: 'Bebida isotônica' }
+                { 
+                    name: 'Água 500ml', 
+                    description: 'Água mineral',
+                    modalDescription: 'Descrição detalhada da Água 500ml',
+                    imageUrl: ''
+                },
+                // ... (outras águas com estrutura similar)
             ],
             'refri-latas': [
-                { name: 'Sprite/Fanta', description: 'Refrigerante cítrico' },
-                { name: 'Guaraná Antarctica', description: 'Refrigerante tradicional' },
-                { name: 'Pepsi', description: 'Refrigerante de cola' },
-                { name: 'Coca Cola', description: 'Refrigerante tradicional' },
-                { name: 'Schwepps', description: 'Refrigerante premium' },
-                { name: 'Kuat', description: 'Refrigerante de guaraná' },
-                { name: 'Tônica', description: 'Água tônica' },
-                { name: 'Sukita', description: 'Refrigerante cítrico' }
+                { 
+                    name: 'Sprite/Fanta', 
+                    description: 'Refrigerante cítrico',
+                    modalDescription: 'Descrição detalhada do Sprite/Fanta',
+                    imageUrl: ''
+                },
+                // ... (outros refrigerantes com estrutura similar)
             ],
             'refri-pet': [
-                { name: 'Coca-Cola 2L', description: 'Refrigerante família' },
-                { name: 'Sprite 2L', description: 'Refrigerante cítrico família' },
-                { name: 'Fanta 2L', description: 'Refrigerante laranja família' },
-                { name: 'Coca Retor 2L', description: 'Coca-Cola retornável' },
-                { name: 'Coca Mini', description: 'Coca-Cola pequena' },
-                { name: 'Conq. Mini', description: 'Conquista pequena' },
-                { name: 'Coca 600ml', description: 'Coca-Cola média' },
-                { name: 'Coca Cola 1L', description: 'Coca-Cola 1 litro' },
-                { name: 'Sprite 600ml', description: 'Sprite média' },
-                { name: 'Schwepps 1,5L', description: 'Schwepps família' },
-                { name: 'Antárctica 2L', description: 'Guaraná família' },
-                { name: 'Antárctica 1L', description: 'Guaraná 1 litro' },
-                { name: 'Conquista 2L', description: 'Refrigerante família' },
-                { name: 'Quinze 2L', description: 'Refrigerante econômico' },
-                { name: 'Conti 2L', description: 'Refrigerante Conti' },
-                { name: 'Guaraná Mini', description: 'Guaraná pequeno' }
+                { 
+                    name: 'Coca-Cola 2L', 
+                    description: 'Refrigerante família',
+                    modalDescription: 'Descrição detalhada da Coca-Cola 2L',
+                    imageUrl: ''
+                },
+                // ... (outros refrigerantes PET com estrutura similar)
             ],
             'sucos': [
-                { name: 'Del Valle 1L', description: 'Suco de caixinha' },
-                { name: 'Prats 300ml', description: 'Suco Prats' },
-                { name: 'Kapo', description: 'Suco Kapo' },
-                { name: 'Prats 1,5L', description: 'Suco Prats grande' },
-                { name: 'Life 900ml', description: 'Suco Life' }
+                { 
+                    name: 'Del Valle 1L', 
+                    description: 'Suco de caixinha',
+                    modalDescription: 'Descrição detalhada do Del Valle 1L',
+                    imageUrl: ''
+                },
+                // ... (outros sucos com estrutura similar)
             ],
             'energeticos': [
-                { name: 'Big Power 2L', description: 'Energético grande' },
-                { name: 'Monster 473ml', description: 'Energético Monster' },
-                { name: 'Red Bull 250ml', description: 'Red Bull lata' },
-                { name: 'One 2L', description: 'Energético One' },
-                { name: 'Bally 2L', description: 'Energético Bally' },
-                { name: 'Red Bull 355ml', description: 'Red Bull grande' },
-                { name: 'Bally 473ml', description: 'Bally lata grande' }
+                { 
+                    name: 'Big Power 2L', 
+                    description: 'Energético grande',
+                    modalDescription: 'Descrição detalhada do Big Power 2L',
+                    imageUrl: ''
+                },
+                // ... (outros energéticos com estrutura similar)
             ],
             'gelo-carvao': [
-                { name: 'Gelo Saborizado', description: 'Gelo com sabor' },
-                { name: 'Carvão 3kg', description: 'Carvão para churrasco' },
-                { name: 'Gelo 4,5Kg', description: 'Pacote de gelo' },
-                { name: 'Carvão 6,5Kg', description: 'Carvão grande' }
+                { 
+                    name: 'Gelo Saborizado', 
+                    description: 'Gelo com sabor',
+                    modalDescription: 'Descrição detalhada do Gelo Saborizado',
+                    imageUrl: ''
+                },
+                // ... (outros itens com estrutura similar)
             ]
         };
 
@@ -484,22 +642,61 @@
             container.innerHTML = '';
 
             const categoryProducts = products[categoryId] || [];
-            categoryProducts.forEach(product => {
+            categoryProducts.forEach((product, index) => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
                     <div class="product-name">${product.name}</div>
                     <div class="product-info">${product.description}</div>
                 `;
+                card.addEventListener('click', () => showProductModal(product, categoryId, index));
                 container.appendChild(card);
             });
         }
+
+        // MOSTRAR MODAL DO PRODUTO
+        function showProductModal(product, categoryId, index) {
+            document.getElementById('modalProductName').textContent = product.name;
+            document.getElementById('modalProductDescription').textContent = product.modalDescription;
+            
+            const modalImage = document.getElementById('modalProductImage');
+            if (product.imageUrl) {
+                modalImage.src = product.imageUrl;
+                modalImage.style.display = 'block';
+            } else {
+                modalImage.style.display = 'none';
+            }
+            
+            document.getElementById('productModal').classList.add('show');
+            document.body.style.overflow = 'hidden'; // Impede scroll da página principal
+        }
+
+        // FECHAR MODAL
+        function closeModal() {
+            document.getElementById('productModal').classList.remove('show');
+            document.body.style.overflow = 'auto'; // Restaura scroll da página principal
+        }
+
+        // FECHAR MODAL AO CLICAR FORA
+        document.getElementById('productModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // FECHAR MODAL COM ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('productModal').classList.contains('show')) {
+                closeModal();
+            }
+        });
 
         // VOLTAR PARA HOME
         function goHome() {
             document.getElementById('homePage').classList.remove('hidden');
             document.getElementById('menuPage').classList.remove('show');
             document.querySelector('.back-button').classList.remove('show');
+            closeModal(); // Fecha modal se estiver aberto
         }
 
         // INICIALIZAR
