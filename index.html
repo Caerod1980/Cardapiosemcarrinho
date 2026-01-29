@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BebCom Lounge - Cardápio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            color: white;
+            text-align: center;
+            padding: 25px 20px;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            position: relative;
+            border-bottom: 2px solid #dc2626;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcf7f, #4d96ff);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid #dc2626;
+        }
+
+        .back-button:hover {
+            background: rgba(220, 38, 38, 0.9);
+            transform: translateX(-5px);
+        }
+
+        /* PÁGINA INICIAL - HOME */
+        .home-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .home-page.hidden {
+            display: none;
+        }
+
+        .home-title {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            animation: slideDown 0.6s ease;
+        }
+
+        .home-title h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .home-title p {
+            font-size: 18px;
+            color: #ddd;
+            font-weight: 300;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            max-width: 1400px;
+            width: 100%;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .category-button {
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.9) 0%, rgba(45, 45, 45, 0.9) 100%);
+            border: 1px solid #333;
+            padding: 40px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+        }
+
+        .category-button:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(220, 38, 38, 0.3);
+            border-color: #dc2626;
+        }
+
+        .category-button:active {
+            transform: translateY(-5px);
+        }
+
+        .category-button.whisky { background: linear-gradient(135deg, #8b6f47 0%, #d4a574 100%); }
+        .category-button.gin { background: linear-gradient(135deg, #4a90e2 0%, #87ceeb 100%); }
+        .category-button.vodka { background: linear-gradient(135deg, #b0b0b0 0%, #e0e0e0 100%); color: #000; }
+        .category-button.vinho { background: linear-gradient(135deg, #8b0000 0%, #d4004a 100%); }
+        .category-button.cerveja { background: linear-gradient(135deg, #ffa500 0%, #ffd700 100%); color: #000; }
+        .category-button.destilado { background: linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%); }
+        .category-button.agua { background: linear-gradient(135deg, #1e90ff 0%, #00bfff 100%); }
+        .category-button.refri-lata { background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%); }
+        .category-button.refri-pet { background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%); }
+        .category-button.suco { background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%); }
+        .category-button.energetico { background: linear-gradient(135deg, #9932cc 0%, #da70d6 100%); }
+        .category-button.gelo-carvao { background: linear-gradient(135deg, #2f4f4f 0%, #696969 100%); }
+
+        /* PÁGINA DO MENU */
+        .menu-page {
+            display: none;
+            padding: 100px 20px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .menu-page.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .menu-title {
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 36px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .products-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .product-card {
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            animation: slideUp 0.5s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.2);
+            border-color: #dc2626;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #f5f5f5;
+        }
+
+        .product-info {
+            font-size: 16px;
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        /* ANIMAÇÕES */
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* RESPONSIVO */
+        @media (max-width: 768px) {
+            .home-title h1 {
+                font-size: 32px;
+            }
+
+            .categories-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .menu-page {
+                padding: 80px 15px 20px;
+            }
+
+            .products-container {
+                grid-template-columns: 1fr;
+            }
+
+            .back-button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .home-title h1 {
+                font-size: 24px;
+            }
+
+            .home-title p {
+                font-size: 14px;
+            }
+
+            .category-button {
+                padding: 30px 15px;
+                font-size: 16px;
+            }
+
+            .menu-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">🍹 BebCom Lounge - Cardápio Completo 🍹</div>
+    
+    <button class="back-button" onclick="goHome()">← Voltar</button>
+
+    <!-- PÁGINA INICIAL -->
+    <div class="home-page" id="homePage">
+        <div class="home-title">
+            <h1>Cardápio BebCom</h1>
+            <p>Escolha uma categoria para ver nossos produtos</p>
+        </div>
+
+        <div class="categories-grid">
+            <button class="category-button whisky" onclick="showCategory('drinks-whisky', 'Drinks Whisky')">
+                Drinks Whisky
+            </button>
+            <button class="category-button gin" onclick="showCategory('drinks-gin', 'Drinks Gin')">
+                Drinks Gin
+            </button>
+            <button class="category-button vodka" onclick="showCategory('drinks-vodka', 'Drinks Vodka')">
+                Drinks Vodka
+            </button>
+            <button class="category-button vinho" onclick="showCategory('drinks-vinho', 'Drinks Vinho')">
+                Drinks Vinho
+            </button>
+            <button class="category-button cerveja" onclick="showCategory('cervejas', 'Cervejas')">
+                Cervejas
+            </button>
+            <button class="category-button destilado" onclick="showCategory('destilados', 'Destilados')">
+                Destilados
+            </button>
+            <button class="category-button agua" onclick="showCategory('aguas', 'Águas')">
+                Águas
+            </button>
+            <button class="category-button refri-lata" onclick="showCategory('refri-latas', 'Refrigerantes (Latas)')">
+                Refri Latas
+            </button>
+            <button class="category-button refri-pet" onclick="showCategory('refri-pet', 'Refrigerantes (PET)')">
+                Refri PET
+            </button>
+            <button class="category-button suco" onclick="showCategory('sucos', 'Sucos')">
+                Sucos
+            </button>
+            <button class="category-button energetico" onclick="showCategory('energeticos', 'Energéticos')">
+                Energéticos
+            </button>
+            <button class="category-button gelo-carvao" onclick="showCategory('gelo-carvao', 'Gelo e Carvão')">
+                Gelo e Carvão
+            </button>
+        </div>
+    </div>
+
+    <!-- PÁGINA DO MENU -->
+    <div class="menu-page" id="menuPage">
+        <h1 class="menu-title" id="menuTitle">Drinks Whisky</h1>
+        <div class="products-container" id="productsContainer"></div>
+    </div>
+
+    <script>
+        // DADOS DOS PRODUTOS
+        const products = {
+            'drinks-whisky': [
+                { name: 'Old Star', description: 'Drink clássico de whisky' },
+                { name: 'Passport', description: 'Whisky importado' },
+                { name: 'Natu Nobilis', description: 'Whisky premium' },
+                { name: 'White Horse', description: 'Whisky escocês' },
+                { name: 'Red Label', description: 'Johnnie Walker Red Label' },
+                { name: "Ballantine's", description: 'Whisky escocês' },
+                { name: "Jack Daniel's", description: 'Whisky americano' }
+            ],
+            'drinks-gin': [
+                { name: 'Danoninho de Gin', description: 'Drink refrescante com gin' },
+                { name: 'Copão de Gin', description: 'Gin com tônica e limão' }
+            ],
+            'drinks-vodka': [
+                { name: 'Danoninho Corote', description: 'Drink com corote e frutas' },
+                { name: 'Danoninho Askov', description: 'Askov com frutas' },
+                { name: 'Copão de Ice', description: 'Drink gelado com vodka' },
+                { name: 'Copão de Vodka', description: 'Vodka com energético' }
+            ],
+            'drinks-vinho': [
+                { name: 'Danoninho de Vinho', description: 'Vinho com frutas' }
+            ],
+            'cervejas': [
+                { name: 'Skol/Brahma', description: 'Cerveja tradicional' },
+                { name: 'Antarctica', description: 'Cerveja pilsen' },
+                { name: 'Sub-Zero', description: 'Cerveja extra gelada' },
+                { name: 'Amstel', description: 'Cerveja holandesa' },
+                { name: 'Heineken', description: 'Cerveja premium' },
+                { name: 'Corona Long', description: 'Cerveja mexicana' },
+                { name: 'Stella Long', description: 'Cerveja belga' },
+                { name: 'Brahma Zero', description: 'Cerveja sem álcool' },
+                { name: 'Império', description: 'Cerveja nacional' },
+                { name: 'Duplo Malte', description: 'Cerveja com sabor intenso' },
+                { name: 'Spaten', description: 'Cerveja alemã' },
+                { name: 'Budweiser', description: 'Cerveja americana' },
+                { name: 'Burguesa', description: 'Cerveja artesanal' },
+                { name: 'Bavaria', description: 'Cerveja importada' },
+                { name: 'Bavaria Latão', description: 'Latão de cerveja' },
+                { name: 'Petra', description: 'Cerveja brasileira' },
+                { name: 'Conti Malzbier', description: 'Malzbier tradicional' },
+                { name: 'Brahma Malz.', description: 'Malzbier Brahma' },
+                { name: 'Moinho Real', description: 'Cerveja especial' },
+                { name: 'Original', description: 'Cerveja premium' },
+                { name: 'Heineken Long', description: 'Long neck Heineken' },
+                { name: 'Budweiser Long', description: 'Long neck Budweiser' },
+                { name: 'Patagônia Long', description: 'Cerveja argentina' },
+                { name: 'Eisenbah IPA', description: 'Cerveja IPA' },
+                { name: 'Stella Gold', description: 'Stella Artois premium' },
+                { name: 'Amstel Ultra', description: 'Cerveja leve' },
+                { name: 'Spaten Long', description: 'Long neck Spaten' },
+                { name: 'Michelob Long', description: 'Cerveja premium' },
+                { name: 'Michelob', description: 'Cerveja americana' },
+                { name: 'Conti Zero Grau', description: 'Bebida sem álcool' }
+            ],
+            'destilados': [
+                { name: 'Jurupinga', description: 'Licor brasileiro' },
+                { name: 'Saquê', description: 'Bebida japonesa' },
+                { name: 'Tequila', description: 'Bebida mexicana' },
+                { name: 'Pinga 51', description: 'Cachaça tradicional' },
+                { name: 'Conhaque', description: 'Bebida destilada' },
+                { name: 'Dimel', description: 'Licor especial' },
+                { name: 'Campari', description: 'Aperitivo italiano' },
+                { name: 'Gin Askov', description: 'Gin nacional' },
+                { name: 'Askov Pura', description: 'Drink de Askov' },
+                { name: 'Ice', description: 'Bebida refrescante' },
+                { name: 'Beats Lata', description: 'Bebida pronta' },
+                { name: 'Beats Long', description: 'Long neck Beats' },
+                { name: 'Smirnoff Ice', description: 'Bebida com vodka' },
+                { name: 'Jack Daniels', description: 'Whisky americano premium' },
+                { name: 'Velho Barreiro', description: 'Cachaça tradicional' },
+                { name: 'Vila Velha', description: 'Cachaça premium' },
+                { name: 'Old Star', description: 'Whisky nacional' },
+                { name: 'Passport', description: 'Whisky importado' },
+                { name: 'Natu Nobilis', description: 'Whisky premium' },
+                { name: 'White Horse', description: 'Whisky escocês' },
+                { name: 'Red Label', description: 'Whisky premium' },
+                { name: 'Ballantines', description: 'Whisky escocês' },
+                { name: 'Smirnoff 1L', description: 'Vodka Smirnoff' },
+                { name: 'Askov Sabor 1L', description: 'Askov com sabor' },
+                { name: 'Canelinha', description: 'Licor de canela' },
+                { name: 'Dom Bosco', description: 'Licor brasileiro' },
+                { name: 'Chapinha', description: 'Cachaça artesanal' },
+                { name: 'Pérgola', description: 'Vinho especial' },
+                { name: 'Dom Feliciano', description: 'Vinho brasileiro' },
+                { name: 'Cantinho', description: 'Bebida regional' },
+                { name: 'Stempel 355ml', description: 'Cerveja artesanal' },
+                { name: 'Stempel 600ml', description: 'Cerveja artesanal grande' }
+            ],
+            'aguas': [
+                { name: 'Água 500ml', description: 'Água mineral' },
+                { name: 'Água 1,5L', description: 'Garrafa grande de água' },
+                { name: 'Água de Coco 1L', description: 'Água de coco natural' },
+                { name: 'Água Gás 500ml', description: 'Água com gás' },
+                { name: 'Água Gás 1,5L', description: 'Água com gás grande' },
+                { name: 'H2O 500ml', description: 'Água mineral H2O' },
+                { name: 'H2O 1,5L', description: 'H2O garrafa grande' },
+                { name: 'Gatorade', description: 'Bebida isotônica' }
+            ],
+            'refri-latas': [
+                { name: 'Sprite/Fanta', description: 'Refrigerante cítrico' },
+                { name: 'Guaraná Antarctica', description: 'Refrigerante tradicional' },
+                { name: 'Pepsi', description: 'Refrigerante de cola' },
+                { name: 'Coca Cola', description: 'Refrigerante tradicional' },
+                { name: 'Schwepps', description: 'Refrigerante premium' },
+                { name: 'Kuat', description: 'Refrigerante de guaraná' },
+                { name: 'Tônica', description: 'Água tônica' },
+                { name: 'Sukita', description: 'Refrigerante cítrico' }
+            ],
+            'refri-pet': [
+                { name: 'Coca-Cola 2L', description: 'Refrigerante família' },
+                { name: 'Sprite 2L', description: 'Refrigerante cítrico família' },
+                { name: 'Fanta 2L', description: 'Refrigerante laranja família' },
+                { name: 'Coca Retor 2L', description: 'Coca-Cola retornável' },
+                { name: 'Coca Mini', description: 'Coca-Cola pequena' },
+                { name: 'Conq. Mini', description: 'Conquista pequena' },
+                { name: 'Coca 600ml', description: 'Coca-Cola média' },
+                { name: 'Coca Cola 1L', description: 'Coca-Cola 1 litro' },
+                { name: 'Sprite 600ml', description: 'Sprite média' },
+                { name: 'Schwepps 1,5L', description: 'Schwepps família' },
+                { name: 'Antárctica 2L', description: 'Guaraná família' },
+                { name: 'Antárctica 1L', description: 'Guaraná 1 litro' },
+                { name: 'Conquista 2L', description: 'Refrigerante família' },
+                { name: 'Quinze 2L', description: 'Refrigerante econômico' },
+                { name: 'Conti 2L', description: 'Refrigerante Conti' },
+                { name: 'Guaraná Mini', description: 'Guaraná pequeno' }
+            ],
+            'sucos': [
+                { name: 'Del Valle 1L', description: 'Suco de caixinha' },
+                { name: 'Prats 300ml', description: 'Suco Prats' },
+                { name: 'Kapo', description: 'Suco Kapo' },
+                { name: 'Prats 1,5L', description: 'Suco Prats grande' },
+                { name: 'Life 900ml', description: 'Suco Life' }
+            ],
+            'energeticos': [
+                { name: 'Big Power 2L', description: 'Energético grande' },
+                { name: 'Monster 473ml', description: 'Energético Monster' },
+                { name: 'Red Bull 250ml', description: 'Red Bull lata' },
+                { name: 'One 2L', description: 'Energético One' },
+                { name: 'Bally 2L', description: 'Energético Bally' },
+                { name: 'Red Bull 355ml', description: 'Red Bull grande' },
+                { name: 'Bally 473ml', description: 'Bally lata grande' }
+            ],
+            'gelo-carvao': [
+                { name: 'Gelo Saborizado', description: 'Gelo com sabor' },
+                { name: 'Carvão 3kg', description: 'Carvão para churrasco' },
+                { name: 'Gelo 4,5Kg', description: 'Pacote de gelo' },
+                { name: 'Carvão 6,5Kg', description: 'Carvão grande' }
+            ]
+        };
+
+        // MOSTRAR CATEGORIA
+        function showCategory(categoryId, categoryName) {
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('menuPage').classList.add('show');
+            document.querySelector('.back-button').classList.add('show');
+            document.getElementById('menuTitle').textContent = categoryName;
+
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '';
+
+            const categoryProducts = products[categoryId] || [];
+            categoryProducts.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-info">${product.description}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // VOLTAR PARA HOME
+        function goHome() {
+            document.getElementById('homePage').classList.remove('hidden');
+            document.getElementById('menuPage').classList.remove('show');
+            document.querySelector('.back-button').classList.remove('show');
+        }
+
+        // INICIALIZAR
+        document.addEventListener('DOMContentLoaded', function() {
+            // Opcional: Mostrar primeira categoria automaticamente
+            // showCategory('drinks-whisky', 'Drinks Whisky');
+        });
+    </script>
+</body>
+</html>
