@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BebCom Lounge - Cardápio</title>
+    <title>BebCom Lounge - Delivery</title>
     <style>
         * {
             margin: 0;
@@ -290,7 +290,135 @@
             line-height: 1.6;
             color: #ddd;
             text-align: center;
+            margin-bottom: 20px;
             padding: 0 10px;
+        }
+
+        .modal-price {
+            font-size: 22px;
+            font-weight: bold;
+            color: #dc2626;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .modal-add-to-cart {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: block;
+            margin: 20px auto 10px;
+            width: 80%;
+            transition: all 0.3s ease;
+        }
+
+        .modal-add-to-cart:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.3);
+        }
+
+        /* CARRINHO */
+        .cart {
+            position: fixed;
+            right: 20px;
+            top: 100px;
+            width: 300px;
+            background: rgba(26, 26, 26, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 999;
+            border: 1px solid #dc2626;
+            backdrop-filter: blur(10px);
+        }
+
+        .cart h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .cart-items {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0;
+            padding: 8px;
+            background: rgba(45, 45, 45, 0.5);
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .cart-total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #dc2626;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .cart-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #333;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .cart-input::placeholder {
+            color: #aaa;
+        }
+
+        .checkout-button {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .checkout-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .clear-cart-button {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .clear-cart-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
         }
 
         /* ANIMAÇÕES */
@@ -346,6 +474,18 @@
                 font-size: 14px;
                 padding: 0 5px;
             }
+
+            .cart {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                top: auto;
+                width: 100%;
+                border-radius: 10px 10px 0 0;
+                max-height: 60vh;
+                overflow-y: auto;
+            }
         }
 
         @media (max-width: 480px) {
@@ -385,14 +525,14 @@
     </style>
 </head>
 <body>
-    <div class="header">🍹 BebCom Lounge - Cardápio Completo 🍹</div>
+    <div class="header">🍹 BebCom Lounge - Delivery 🚚</div>
     
     <button class="back-button" onclick="goHome()">← Voltar</button>
 
     <!-- PÁGINA INICIAL -->
     <div class="home-page" id="homePage">
         <div class="home-title">
-            <h1>Cardápio BebCom</h1>
+            <h1>Cardápio BebCom Delivery</h1>
             <p>Escolha uma categoria para ver nossos produtos</p>
         </div>
 
@@ -452,55 +592,74 @@
             <div class="modal-body">
                 <img id="modalProductImage" class="modal-image" src="" alt="Produto">
                 <div class="modal-description" id="modalProductDescription"></div>
+                <div class="modal-price" id="modalProductPrice"></div>
+                <button class="modal-add-to-cart" onclick="addToCartFromModal()">Adicionar ao Carrinho</button>
             </div>
         </div>
     </div>
 
+    <!-- CARRINHO -->
+    <div class="cart" id="cart">
+        <h2>🛒 Carrinho</h2>
+        <div class="cart-items" id="cart-items"></div>
+        <div class="cart-total">Total: R$<span id="cart-total">0.00</span></div>
+        <input type="text" id="customer-name" class="cart-input" placeholder="Digite seu nome" required>
+        <button class="checkout-button" onclick="sendToWhatsApp()">Enviar Pedido</button>
+        <button class="clear-cart-button" onclick="clearCart()">Limpar Carrinho</button>
+    </div>
+
     <script>
-        // DADOS DOS PRODUTOS
+        // DADOS DOS PRODUTOS COM PREÇOS (do anexo 1)
         const products = {
             'drinks-whisky': [
                 { 
                     name: 'Old Star', 
                     description: 'Drink clássico de whisky',
                     modalDescription: 'Old Star une a tradição do whisky à ousadia de sabores premium para elevar seu brinde. Do clássico Original ao frescor da Maçã-Verde, e da suavidade do Mel ao toque exótico do Coco, cada gole é uma experiência sensorial única. Seja puro ou em drinks refrescantes, nossa coleção foi feita para quem brilha no próprio ritmo. Descubra a sofisticação que combina com seu estilo e transforme qualquer momento em uma celebração inesquecível.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/941adddc32a6487b91f77a393036153c694d1069/Old%20ma%C3%A7a.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/941adddc32a6487b91f77a393036153c694d1069/Old%20ma%C3%A7a.png?raw=true',
+                    price: 11.00
                 },
                 { 
                     name: 'Passport', 
                     description: 'Whisky importado',
                     modalDescription: 'O Passport Scotch é o equilíbrio perfeito entre a tradição escocesa e a vibração urbana, feito para quem vive sem fronteiras. Com seu blend suave, frutado e levemente cremoso, ele é a escolha ideal tanto para o ritual clássico quanto para drinks modernos e refrescantes. Celebre cada conquista com estilo. Descubra a versatilidade de um whisky que se adapta ao seu ritmo e transforma qualquer encontro em um momento memorável.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/ff91b7d4ec0f9c054b4a7bf1a8ef4a395d561978/Passport.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/ff91b7d4ec0f9c054b4a7bf1a8ef4a395d561978/Passport.png?raw=true',
+                    price: 18.00
                 },
                 { 
                     name: 'Natu Nobilis', 
                     description: 'Whisky premium',
                     modalDescription: 'O Natu Nobilis é a expressão máxima de um clássico brasileiro que une tradição e suavidade em cada dose. Com um blend equilibrado de maltes selecionados é perfeito para momentos de descontração. Sua presença é sinônimo de hospitalidade e bons encontros, celebrando a nobreza da simplicidade com elegância. Natu Nobilis: o prazer de compartilhar o que é bom.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/babcab39c166fbaaea423f64aad95dde20243a66/Natu.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/babcab39c166fbaaea423f64aad95dde20243a66/Natu.png?raw=true',
+                    price: 17.00
                 },
                 { 
                     name: 'White Horse', 
                     description: 'Whisky escocês',
                     modalDescription: 'O White Horse é uma lenda escocesa que destila liberdade e vigor em cada gota, trazendo a força do seu ícone para o seu copo. Com um blend rico e defumado, composto por maltes selecionados das Highlands e Islay, ele entrega um sabor robusto e inconfundível. Seja puro ou com gelo, liberte o espírito do cavalo branco em você.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/a5d352b13124ad0032096b970fa369f79f1e4516/white%20horse.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/a5d352b13124ad0032096b970fa369f79f1e4516/white%20horse.png?raw=true',
+                    price: 22.00
                 },
                 { 
                     name: 'Red Label', 
                     description: 'Johnnie Walker Red Label',
                     modalDescription: 'O Johnnie Walker Red Label é o whisky pioneiro que conquistou o mundo com seu espírito vibrante e audacioso. Seu blend combina maltes leves da costa leste escocesa com notas picantes e defumadas, resultando em um sabor intenso que se destaca mesmo quando misturado. Feito para quem está sempre em movimento, ele é a base perfeita para o clássico Highball ou para momentos de celebração entre amigos. Red Label: Keep Walking.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/1f303548ca75377d3ae35d74a2059627cb2a3ac1/red.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/1f303548ca75377d3ae35d74a2059627cb2a3ac1/red.png?raw=true',
+                    price: 25.00
                 },
                 { 
                     name: "Ballantine's", 
                     description: 'Whisky escocês',
                     modalDescription: 'O Ballantine\'s Finest é a expressão máxima da autenticidade, mantendo sua receita original premiada desde 1910. Este blend escocês harmoniza mais de 40 maltes para entregar um sabor equilibrado, com notas sutis de chocolate, maçã e baunilha. É o whisky ideal para quem busca versatilidade, brilhando tanto puro quanto em coquetéis modernos e refrescantes. Com seu espírito "Stay True", ele convida você a celebrar sua individualidade em cada brinde. Ballantine\'s: o clássico que nunca perde o ritmo.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/7d99d540bbf166d35bb546055dd67e14a6a4eaf5/ballantines.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/7d99d540bbf166d35bb546055dd67e14a6a4eaf5/ballantines.png?raw=true',
+                    price: 28.00
                 },
                 { 
                     name: "Jack Daniel's", 
                     description: 'Whisky americano',
                     modalDescription: 'A linha Jack Daniel\'s celebra a autenticidade de Lynchburg em três versões icônicas: o clássico No. 7 com seu equilíbrio inconfundível de carvalho e baunilha, a suavidade aveludada do Honey e o frescor vibrante do Apple. Cada garrafa carrega o processo único de suavização em carvão, garantindo um paladar macio seja puro, com gelo ou em coquetéis autorais. É o Tennessee Whiskey feito para quem aprecia tradição com um toque de ousadia. Jack Daniel\'s: o seu momento merece um brinde com atitude.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/7c9d493d1f28a262a22b87845f1287818c8e5fe2/jack.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/7c9d493d1f28a262a22b87845f1287818c8e5fe2/jack.png?raw=true',
+                    price: 35.00
                 }
             ],
             'drinks-gin': [
@@ -508,13 +667,15 @@
                     name: 'Danoninho de Gin', 
                     description: 'Drink refrescante com gin',
                     modalDescription: 'O Danoninho de Gin é uma criação refrescante que combina a sofisticação do gin com leite condensado. Ideal para dias quentes ou noites animadas, oferece um equilíbrio perfeito entre o sabor botânico do gin e a cremosidade do leite condensado.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/50d273dc2d8c21e1655e8810124c71bc599623bd/danoninho%20de%20gin.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/50d273dc2d8c21e1655e8810124c71bc599623bd/danoninho%20de%20gin.png?raw=true',
+                    price: 17.00
                 },
                 { 
                     name: 'Copão de Gin', 
                     description: 'Gin com tônica e limão',
                     modalDescription: 'O Copão de Gin é a escolha clássica para os apreciadores da bebida. Servido em copo grande com gelo, gin premium, tônica gelada e uma rodela de limão. Perfeito para momentos de descontração.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 17.00
                 }
             ],
             'drinks-vodka': [
@@ -522,25 +683,29 @@
                     name: 'Danoninho Corote', 
                     description: 'Drink com corote e frutas',
                     modalDescription: 'Esse é o famoso e irresistível Danoninho. O encontro perfeito entre a vibração do Corote e a cremosidade aveludada do leite condensado. Cada gole é uma explosão de doçura e frescor, transformando ingredientes simples em uma experiência tropical e intensamente saborosa. Ideal para quem busca um drink divertido, gelado e com aquele gostinho de festa que não quer acabar. É a mistura equilibrada que acaricia o paladar e anima qualquer momento de celebração com os amigos. Danoninho: a cremosidade que é puro prazer em cada detalhe.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/1c077e1d7f86a1e2d76106636df3337e8bfde601/Danoninho.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/1c077e1d7f86a1e2d76106636df3337e8bfde601/Danoninho.png?raw=true',
+                    price: 15.00
                 },
                 { 
                     name: 'Danoninho Askov', 
                     description: 'Askov com frutas',
                     modalDescription: 'Esta é o Danoninho Remix, uma experiência sensorial que une a intensidade vibrante da Vodka Askov com a textura sedosa e doce do leite condensado. É o drink perfeito para quem busca sabor marcante e uma cremosidade que derrete na boca, elevando qualquer celebração a um novo nível. Gelada, aveludada e irresistível, ela é o combustível ideal para os seus melhores momentos. Danoninho Askov Remix: a mistura ousada que define o seu ritmo.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/c864043ce0debaae55554098b2a5703159c5a7c4/Copo%20danoninho%20Askov.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/c864043ce0debaae55554098b2a5703159c5a7c4/Copo%20danoninho%20Askov.png?raw=true',
+                    price: 17.00
                 },
                 { 
                     name: 'Copão de Ice', 
                     description: 'Drink gelado com vodka',
                     modalDescription: 'O Copão de Ice é a combinação perfeita de vodka gelada com energético. Refrescante e energizante, ideal para noites longas.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 17.00
                 },
                 { 
                     name: 'Copão de Vodka', 
                     description: 'Vodka com energético',
                     modalDescription: 'O clássico copão de vodka com energético, sempre uma ótima escolha para animar a festa. Servido gelado e na medida certa.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 17.00
                 }
             ],
             'drinks-vinho': [
@@ -548,7 +713,8 @@
                     name: 'Danoninho de Vinho', 
                     description: 'Vinho com frutas',
                     modalDescription: 'Unindo a robustez do vinho tinto à doçura aveludada do leite condensado, esse é um drink de textura densa e sabor envolvente, equilibrando perfeitamente a acidez da uva com uma cremosidade irresistível. Servida geladíssima, ela é a escolha ideal para quem busca uma bebida reconfortante e, ao mesmo tempo, refrescante. Cada gole é um convite à celebração, transformando a tradição em um momento de puro prazer compartilhado. Danoninho de Vinho: a sofisticação do tinto com o toque doce que você ama.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/64a9b4edf6c9b671fd42fcc8f03e23b768265c0a/danoninho%20de%20vinho.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/64a9b4edf6c9b671fd42fcc8f03e23b768265c0a/danoninho%20de%20vinho.png?raw=true',
+                    price: 17.00
                 }
             ],
             'cervejas': [
@@ -556,181 +722,211 @@
                     name: 'Skol/Brahma', 
                     description: 'Cerveja tradicional brasileira',
                     modalDescription: 'As cervejas mais tradicionais do Brasil, conhecidas por seu sabor suave e refrescante. Perfeitas para qualquer ocasião.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/899161efae18b2c1f93aef27a90d8ffe7a16df6d/brahma%20e%20skol%20lata.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/899161efae18b2c1f93aef27a90d8ffe7a16df6d/brahma%20e%20skol%20lata.jpg?raw=true',
+                    price: 4.25
                 },
                 { 
                     name: 'Antarctica', 
                     description: 'Cerveja pilsen refrescante',
                     modalDescription: 'A Antarctica Pilsen é o coração da celebração brasileira, entregando o frescor ideal para os dias de sol e os encontros espontâneos. Com seu brilho dourado e colarinho persistente, ela equilibra perfeitamente a leveza do malte com um amargor sutil e revigorante. É a escolha de quem valoriza a tradição de uma cerveja que atravessa gerações mantendo sua essência vibrante. Cada gole é um convite para desacelerar e aproveitar a companhia de quem importa. Antarctica: o sabor de uma boa conversa.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/67ac07ba46492b1b62bece5d0bf44967bf893cfc/boa%20lata.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/67ac07ba46492b1b62bece5d0bf44967bf893cfc/boa%20lata.png?raw=true',
+                    price: 4.25
                 },
                 { 
                     name: 'Sub-Zero', 
                     description: 'Cerveja extra gelada',
                     modalDescription: 'A Antarctica Sub Zero redefine o conceito de refrescância através de um processo de dupla filtração a curtas temperaturas, garantindo uma experiência intensamente gelada. Sua leveza excepcional e paladar suave foram desenhados para os climas mais quentes, oferecendo um gole fluido e sem esforço. É a companhia ideal para quem busca o máximo de frescor e uma sensação revigorante que permanece do início ao fim. Sub Zero: refrescância abaixo de zero.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/2b6553f7a9147ecc831bdad2691c96dc911a0567/sub%20zero.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/2b6553f7a9147ecc831bdad2691c96dc911a0567/sub%20zero.png?raw=true',
+                    price: 4.25
                 },
                 { 
                     name: 'Amstel', 
                     description: 'Cerveja holandesa premium',
                     modalDescription: 'A Amstel Lager traz diretamente de Amsterdã a tradição do puro malte, equilibrando herança europeia com uma refrescância imbatível. Sua receita, que atravessa séculos, entrega um sabor rico e dourado, sem abrir mão da leveza necessária para o clima brasileiro. É a escolha de quem busca qualidade superior em cada detalhe, unindo a força do malte a um acabamento suave e convidativo. Amstel: o sabor de Amsterdã, puro malte de verdade.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/a3ed111d65a43d0b3fe7a8f3ab7e56737f46e1d1/Amstel%20Lata.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/a3ed111d65a43d0b3fe7a8f3ab7e56737f46e1d1/Amstel%20Lata.png?raw=true',
+                    price: 4.50
                 },
                 { 
                     name: 'Heineken', 
                     description: 'Cerveja importada premium',
                     modalDescription: 'Produzida com ingredientes 100% naturais e a exclusiva Levedura A, a Heineken entrega um sabor equilibrado, refrescante e com um amargor característico que conquista paladares exigentes. Sua maturação em tanques horizontais garante a pressão e a clareza perfeitas em cada gole. É a escolha definitiva para quem não abre mão da excelência em qualquer lugar do mundo. Heineken: abra o seu mundo com o puro malte original.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/31cd4bf54c6df6f17482adda831abf489a86f64a/Heineken%20lata.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/31cd4bf54c6df6f17482adda831abf489a86f64a/Heineken%20lata.png?raw=true',
+                    price: 6.50
                 },
                 { 
                     name: 'Corona Long', 
                     description: 'Cerveja mexicana em long neck',
                     modalDescription: 'A Corona Extra é o convite definitivo para desconectar e abraçar o estilo de vida solar. Com seu corpo leve e refrescância cristalina, esta premium lager mexicana é famosa pelo ritual da fatia de limão, que realça suas notas cítricas e suavidade incomparável. Perfeita para momentos de relaxamento ao ar livre, ela transforma qualquer pausa em uma experiência de paraíso particular. Corona: This is living.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/7900ae1c90bed60fa3d98deccbc678b979dcc31f/corona%20long.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/7900ae1c90bed60fa3d98deccbc678b979dcc31f/corona%20long.png?raw=true',
+                    price: 8.50
                 },
                 { 
                     name: 'Stella Long', 
                     description: 'Cerveja belga em long neck',
-                    modalDescription: 'A Stella Artois é o sinônimo de sofisticação belga, unindo mais de 600 anos de tradição a um sabor amargo e sofisticado. Criada originalmente como um presente de Natal, ela continua sendo a celebração da excelência em cada detalhe, da garrafa verde icônica ao seu acabamento seco. É a escolha de quem aprecia o ritual de degustar uma cerveja com alma e história. Stella Artois: o toque de brilho em cada ocasião.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/f9b01ef4c5d70e072114fef9a777a6d17b142b22/Stella%20long.png?raw=true'
+                    modalDescription: 'A Stella Artois é o sinônimo de sofisticado belga, unindo mais de 600 anos de tradição a um sabor amargo e sofisticado. Criada originalmente como um presente de Natal, ela continua sendo a celebração da excelência em cada detalhe, da garrafa verde icônica ao seu acabamento seco. É a escolha de quem aprecia o ritual de degustar uma cerveja com alma e história. Stella Artois: o toque de brilho em cada ocasião.',
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/f9b01ef4c5d70e072114fef9a777a6d17b142b22/Stella%20long.png?raw=true',
+                    price: 7.00
                 },
                 { 
                     name: 'Brahma Zero', 
                     description: 'Cerveja sem álcool',
-                    modalDescription: 'A Brahma 0,0% é a escolha inteligente para quem quer o sabor autêntico da cerveja em qualquer momento do dia, sem restrições. Através de um processo tecnológico de ponta, o álcool é removido preservando o equilíbrio entre o malte e o frescor que só a Brahma tem. É a companhia ideal para almoços de trabalho, treinos ou para quem assume o volante com responsabilidade e prazer. Brahma 0,0%: o sabor que não para.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/b1f12a43451f156b4e0af0dc22e8fe066f756854/Brahma%20zero%20lata.png?raw=true'
+                    modalDescription: 'A Brahma 0,0% é a escolha inteligente para quem quer o sabor autêntico da cerveja em qualquer momento do dia, sem restrições. Através de um processo tecnológico de ponta, o álcool é removido preservando o equilíbrio entre o malte e o frescor que só a Brahma tem. É a companhia ideal para almoços de trabalho, treinos ou para quem assume o volume com responsabilidade e prazer. Brahma 0,0%: o sabor que não para.',
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/b1f12a43451f156b4e0af0dc22e8fe066f756854/Brahma%20zero%20lata.png?raw=true',
+                    price: 5.00
                 },
                 { 
                     name: 'Império', 
                     description: 'Cerveja brasileira tradicional',
                     modalDescription: 'A Império Pilsen é a personificação da elegância em cada detalhe, unindo a tradição de Petrópolis à sofisticação do puro malte. Sua transparência cristalina e dourada reflete um processo de fabricação rigoroso, focado na pureza e no equilíbrio entre o malte e o frescor. Com um paladar leve e aroma sutil de lúpulos alemães, ela foi feita para quem não abre mão da excelência em momentos de lazer. Império: sinta o sabor de um legado.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/4a3d742a69af371ee1c2d294ab53747076d543a0/Imperio%20lata.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/4a3d742a69af371ee1c2d294ab53747076d543a0/Imperio%20lata.png?raw=true',
+                    price: 4.00
                 },
                 { 
                     name: 'Duplo Malte', 
                     description: 'Cerveja com duplo malte',
                     modalDescription: 'A Brahma Duplo Malte é o encontro perfeito entre a leveza do malte Pilsen e o sabor tostado do malte Munich. Essa combinação exclusiva resulta em uma cerveja de corpo mais presente e cor dourada radiante, mantendo a refrescância que o brasileiro ama. Cada gole revela um equilíbrio impecável, feito para quem busca uma experiência superior sem abrir mão da cremosidade característica. Brahma Duplo Malte: a união que deu muito certo.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/c2093d42c5788cc52e8d1ff1e77eafac841df794/Duplo%20Malte.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/c2093d42c5788cc52e8d1ff1e77eafac841df794/Duplo%20Malte.png?raw=true',
+                    price: 4.50
                 },
                 { 
                     name: 'Spaten', 
                     description: 'Cerveja alemã premium',
                     modalDescription: 'A Spaten é o puro malte que atravessa gerações, trazendo de Munique a autoridade de quem criou o estilo Munich Hell. Seu sabor é um equilíbrio perfeito entre o malte marcante e o amargor preciso, entregando uma intensidade que não sacrifica a refrescância. É a escolha definitiva para quem busca uma experiência autêntica, forte e histórica, ideal para acompanhar grandes momentos. Cada gole é uma jornada pela tradição alemã, traduzida em uma pureza impecável. Spaten: desde 1397, o estilo que define a cerveja.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/9cf5443eb8d685f889780f437bff36d704b22b4a/Spaten%20lata.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/9cf5443eb8d685f889780f437bff36d704b22b4a/Spaten%20lata.png?raw=true',
+                    price: 5.00
                 },
                 { 
                     name: 'Budweiser', 
                     description: 'Cerveja americana',
                     modalDescription: 'A Budweiser é a "King of Beers", um ícone de atitude e autenticidade que atravessa fronteiras com seu sabor marcante e suave. Seu processo exclusivo de maturação com lascas de madeira Beechwood garante um equilíbrio excepcional e uma refrescância que não se encontra em nenhuma outra. Com um brilho dourado e aroma discreto, ela é a escolha perfeita para quem vive intensamente e valoriza a tradição americana. É a cerveja que acompanha o ritmo dos grandes eventos e das amizades verdadeiras. Budweiser: o sabor da liberdade em cada gole.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/4a3d742a69af371ee1c2d294ab53747076d543a0/bud%20lata.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/4a3d742a69af371ee1c2d294ab53747076d543a0/bud%20lata.png?raw=true',
+                    price: 5.10
                 },
                 { 
                     name: 'Burguesa', 
                     description: 'Cerveja artesanal brasileira',
                     modalDescription: 'A Burguesa é a celebração do espírito clássico com um toque de modernidade, entregando uma experiência leve e democrática. Sua receita equilibra o frescor imediato com um paladar suave, ideal para quem busca uma cerveja descomplicada e prazerosa em qualquer ocasião. É o brinde que une tradição e leveza em uma embalagem cheia de personalidade. Burguesa: o seu momento com mais estilo.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/97b056ea6233b682da28cf9b42b750bceb8941b0/burguesa%20lata.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/97b056ea6233b682da28cf9b42b750bceb8941b0/burguesa%20lata.png?raw=true',
+                    price: 4.00
                 },
                 { 
                     name: 'Bavaria', 
                     description: 'Cerveja holandesa',
                     modalDescription: 'A Bavaria é a tradição que atravessa gerações, celebrando a verdadeira essência da amizade e das raízes brasileiras. Com sua receita clássica e refrescância inigualável, ela entrega um sabor leve e equilibrado, ideal para os momentos de descontração e celebração. É a cerveja de quem valoriza o que é autêntico e não abre mão de um clássico gelado. Bavaria: a cerveja dos amigos.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/270ce4735ed3d2c43ecf86456da855af7cd16bd1/bavaria.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/270ce4735ed3d2c43ecf86456da855af7cd16bd1/bavaria.png?raw=true',
+                    price: 3.50
                 },
                 { 
                     name: 'Bavaria Latão', 
                     description: 'Cerveja em lata grande',
                     modalDescription: 'Bavaria na versão latão, mais cerveja para compartilhar momentos especiais.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/881e2774f977b47f67813fe8717301813fe532da/bavaria%20lat%C3%A3o.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/881e2774f977b47f67813fe8717301813fe532da/bavaria%20lat%C3%A3o.png?raw=true',
+                    price: 4.75
                 },
                 { 
                     name: 'Petra', 
                     description: 'Cerveja brasileira',
                     modalDescription: 'A Petra Origem Puro Malte é um tributo à pureza e à tradição das montanhas, trazendo o frescor das águas de Petrópolis em cada gole. Com uma receita equilibrada e ingredientes selecionados, ela oferece um sabor maltado suave e uma refrescância que agrada aos paladares mais exigentes. É a companhia ideal para quem busca sofisticação com leveza em todos os momentos. Petra: a nobreza do puro malte ao seu alcance.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/a5bf7646c39fc99bb184d4283795529ff621a539/Petra.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/a5bf7646c39fc99bb184d4283795529ff621a539/Petra.png?raw=true',
+                    price: 3.90
                 },
                 { 
                     name: 'Conti Malzbier', 
                     description: 'Cerveja tipo malzbier',
                     modalDescription: 'A Conti Malzbier é a escolha perfeita para quem busca uma experiência rica, adocicada e profundamente reconfortante. Com sua coloração escura e corpo aveludado, ela traz notas marcantes de caramelo e malte tostado que abraçam o paladar a cada gole. Sua doçura equilibrada faz dela uma cerveja única, capaz de transformar uma pausa simples em um instante de puro prazer. Conti Malzbier: a energia do malte com um sabor inconfundível.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/e69dabb6914b6426435673bcba079a7505c5f452/conti%20malzbier.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/e69dabb6914b6426435673bcba079a7505c5f452/conti%20malzbier.png?raw=true',
+                    price: 4.50
                 },
                 { 
                     name: 'Brahma Malz.', 
                     description: 'Malzbier da Brahma',
                     modalDescription: 'Brahma Malzbier, a versão escura e adocicada da tradicional Brahma. Sabor único e especial.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/3d0825551eee6fd5f16dec45d51eca5e3da37350/brahma%20malz.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/3d0825551eee6fd5f16dec45d51eca5e3da37350/brahma%20malz.png?raw=true',
+                    price: 5.00
                 },
                 { 
                     name: 'Moinho Real', 
                     description: 'Cerveja brasileira',
                     modalDescription: 'A Moinho Real é a expressão máxima da pureza em forma de brinde, unindo a tradição do campo com a sofisticação do puro malte. Sua receita entrega uma leveza incomparável e um equilíbrio sensorial que desperta o paladar logo no primeiro gole. Com um dourado límpido e notas maltadas sutis, ela é a escolha ideal para quem não abre mão de qualidade e refrescância em momentos de lazer. Moinho Real: a nobreza da simplicidade em cada detalhe.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/900d234ec32f01f875788be748f7d785e0ce1585/moinho%20real.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/900d234ec32f01f875788be748f7d785e0ce1585/moinho%20real.png?raw=true',
+                    price: 4.25
                 },
                 { 
                     name: 'Original', 
                     description: 'Cerveja premium',
                     modalDescription: 'A Antarctica Original é o padrão ouro da boemia brasileira. Reconhecida por sua suavidade única e amargor discreto, ela entrega uma refrescância que define o verdadeiro sabor de um encontro inesquecível. É a escolha de quem não abre mão de autenticidade e do prazer de uma cerveja gelada no ponto certo. Antarctica Original: o clássico que nunca perde a majestade.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/8889a8c924dba9de6b946d6258586f549a525b81/original.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/8889a8c924dba9de6b946d6258586f549a525b81/original.png?raw=true',
+                    price: 5.00
                 },
                 { 
                     name: 'Heineken Long', 
                     description: 'Heineken em long neck',
                     modalDescription: 'Heineken na clássica garrafa long neck, mantendo toda a qualidade e sabor da original.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/ba1ce76a9842ba6053cdbba5b9879f262d3c8ce0/heineken%20long%20neck.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/ba1ce76a9842ba6053cdbba5b9879f262d3c8ce0/heineken%20long%20neck.png?raw=true',
+                    price: 8.00
                 },
                 { 
                     name: 'Budweiser Long', 
                     description: 'Budweiser em long neck',
                     modalDescription: 'Budweiser na versão long neck, perfeita para quem aprecia a cerveja americana.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/ad8647d3c6856ba65362b8482c000817c7be700f/bud%20long.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/ad8647d3c6856ba65362b8482c000817c7be700f/bud%20long.png?raw=true',
+                    price: 7.50
                 },
                 { 
                     name: 'Patagônia Long', 
                     description: 'Cerveja argentina em long neck',
                     modalDescription: 'Patagônia, cerveja argentina de qualidade premium na versão long neck.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/4e445fff4c5edc070613b53308610a46c384844f/patagonia%20ipa.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/4e445fff4c5edc070613b53308610a46c384844f/patagonia%20ipa.png?raw=true',
+                    price: 8.50
                 },
                 { 
                     name: 'Eisenbah IPA', 
                     description: 'Cerveja IPA artesanal',
                     modalDescription: 'Eisenbah IPA, cerveja artesanal do tipo India Pale Ale. Amarga e aromática.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/d186fcb647dcb57c503ab8f514dd261da55482b4/eisenbah%20ipa.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/d186fcb647dcb57c503ab8f514dd261da55482b4/eisenbah%20ipa.png?raw=true',
+                    price: 8.50
                 },
                 { 
                     name: 'Stella Gold', 
                     description: 'Stella Artois premium',
                     modalDescription: 'Stella Gold, versão premium da Stella Artois com sabor ainda mais refinado.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/3b143eba3e23165b2de2dd2dc710b6f63e96ef54/Stella%20Gold.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/3b143eba3e23165b2de2dd2dc710b6f63e96ef54/Stella%20Gold.png?raw=true',
+                    price: 7.50
                 },
                 { 
                     name: 'Amstel Ultra', 
                     description: 'Cerveja leve',
                     modalDescription: 'A Amstel Ultra é o equilíbrio perfeito para quem vive em movimento e não abre mão do sabor de uma puro malte legítima. Com apenas 72 calorias e baixíssimo teor de carboidratos, ela redefine a leveza, permitindo que você aproveite cada brinde com máxima liberdade. Seu corpo suave e final refrescante são o convite ideal para celebrar as conquistas do dia sem perder o ritmo. É a escolha inteligente para quem busca um estilo de vida consciente, unindo qualidade europeia e leveza absoluta. Amstel Ultra: menos calorias, o mesmo sabor puro malte.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/b1d0b264471b5ba9175b5eb15f89e9694462ee67/Ultra%20long.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/b1d0b264471b5ba9175b5eb15f89e9694462ee67/Ultra%20long.png?raw=true',
+                    price: 6.00
                 },
                 { 
                     name: 'Spaten Long', 
                     description: 'Spaten em long neck',
                     modalDescription: 'Spaten na versão long neck, mantendo toda a tradição alemã.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/43c40f0fd9cfc05532c316217368e16b35613bd7/spaten%20long%20neck.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/43c40f0fd9cfc05532c316217368e16b35613bd7/spaten%20long%20neck.png?raw=true',
+                    price: 7.60
                 },
                 { 
                     name: 'Michelob Long', 
                     description: 'Michelob em long neck',
                     modalDescription: 'Michelob, cerveja premium americana na versão long neck.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/03bbedc31addf8ec8708f156ee02fbd3653d51f2/michelob%20long.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/03bbedc31addf8ec8708f156ee02fbd3653d51f2/michelob%20long.png?raw=true',
+                    price: 8.00
                 },
                 { 
                     name: 'Michelob', 
                     description: 'Cerveja americana premium',
                     modalDescription: 'A Michelob Ultra é a tradução da leveza para quem não abre mão do prazer de brindar enquanto mantém o foco em seu bem-estar. Com apenas 79 calorias e baixíssimo teor de carboidratos, ela é a escolha perfeita para acompanhar seu estilo de vida ativo sem comprometer o paladar. É a recompensa ideal após o treino ou o toque leve necessário em um encontro com amigos. Michelob Ultra: o sabor que acompanha seu ritmo, sem pesar na rotina.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/e56a688fbf9514a648a594ebbf0bbf68dedc471a/michelob%20lata.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/e56a688fbf9514a648a594ebbf0bbf68dedc471a/michelob%20lata.png?raw=true',
+                    price: 8.00
                 },
                 { 
                     name: 'Conti Zero Grau', 
                     description: 'Cerveja sem álcool',
                     modalDescription: 'A Conti Zero Grau é a definição de refrescância extrema, projetada para quem busca o máximo de prazer nos dias de sol. Com um processo de microfiltragem que garante uma leveza singular, ela entrega um paladar equilibrado e um frescor que parece congelar o tempo. É a companhia fiel para churrascos, praias e qualquer momento que peça uma pausa gelada e revigorante. Conti Zero Grau: a refrescância que quebra o gelo.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/fe8543b1f39a112323f89c340eb1122578be8142/conti%20zero%20grau.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/fe8543b1f39a112323f89c340eb1122578be8142/conti%20zero%20grau.png?raw=true',
+                    price: 3.50
                 }
             ],
             'destilados': [
@@ -738,193 +934,239 @@
                     name: 'Jurupinga', 
                     description: 'Licor brasileiro',
                     modalDescription: 'Jurupinga, licor brasileiro com sabor único e tradição. Perfeito para shots ou em coquetéis.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/522d1e071ee8d29fc9b9067c4d30818dd81fbb5b/jurupinga.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/522d1e071ee8d29fc9b9067c4d30818dd81fbb5b/jurupinga.jpg?raw=true',
+                    price: 42.00
                 },
                 { 
                     name: 'Saquê', 
                     description: 'Bebida japonesa',
                     modalDescription: 'Saquê, bebida tradicional japonesa feita de arroz. Pode ser servido quente ou frio.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/8edfd573ede22fbd3f71acbed6b1590f7746a35c/saque%20sakai.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/8edfd573ede22fbd3f71acbed6b1590f7746a35c/saque%20sakai.jpg?raw=true',
+                    price: 30.00
                 },
                 { 
                     name: 'Tequila', 
                     description: 'Destilado mexicano',
                     modalDescription: 'Tequila, destilado mexicano feito da agave azul. Perfeito para shots ou margaritas.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/3b1b83c36e7f81fb729d525141a922d723f76687/Tequiloka.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/3b1b83c36e7f81fb729d525141a922d723f76687/Tequiloka.jpg?raw=true',
+                    price: 23.00
                 },
                 { 
                     name: 'Pinga 51', 
                     description: 'Cachaça brasileira',
                     modalDescription: 'Pinga 51, a cachaça mais tradicional do Brasil. Feita de cana-de-açúcar selecionada.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/1d4675733dc1c06f7e8a332528e945cab5dbed8e/pinga%2051.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/1d4675733dc1c06f7e8a332528e945cab5dbed8e/pinga%2051.jpg?raw=true',
+                    price: 17.00
                 },
                 { 
                     name: 'Conhaque', 
                     description: 'Destilado envelhecido',
                     modalDescription: 'Conhaque, destilado de uva envelhecido em barris de carvalho. Sofisticado e aromático.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/f84997b0dce27d93ee138914777a2e737fdaf5e4/presidente.jpg?raw=tue'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/f84997b0dce27d93ee138914777a2e737fdaf5e4/presidente.jpg?raw=tue',
+                    price: 19.00
                 },
                 { 
                     name: 'Dimel', 
                     description: 'Licor italiano',
                     modalDescription: 'Dimel, licor italiano de ervas. Perfeito para digestivos ou em coquetéis.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/cdfb56e057ff9578bd74b36ead6723bbd752978a/dimel.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/cdfb56e057ff9578bd74b36ead6723bbd752978a/dimel.jpg?raw=true',
+                    price: 28.00
                 },
                 { 
                     name: 'Campari', 
                     description: 'Bitter italiano',
                     modalDescription: 'Campari, bitter italiano vermelho vibrante. Base para clássicos como Negroni e Americano.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/67b45cfc3eba6c86c0eeaed6f096f6a69d66ceda/campari.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/67b45cfc3eba6c86c0eeaed6f096f6a69d66ceda/campari.jpg?raw=true',
+                    price: 65.00
                 },
                 { 
                     name: 'Gin Askov', 
                     description: 'Gin brasileiro',
                     modalDescription: 'Gin Askov, destilado brasileiro com botânicos selecionados. Versátil para diversos drinks.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/0913ec293f415de3d82b32bee9a00293c03cb4fe/gin.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/0913ec293f415de3d82b32bee9a00293c03cb4fe/gin.jpg?raw=true',
+                    price: 19.00
                 },
                 { 
                     name: 'Askov Pura', 
                     description: 'Vodka Askov pura',
                     modalDescription: 'Askov Pura, vodka brasileira de qualidade. Neutra e perfeita para misturas.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/bd47a1103e92dca0b66f3e27646d7962862d300d/askov%20pura.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/bd47a1103e92dca0b66f3e27646d7962862d300d/askov%20pura.jpg?raw=true',
+                    price: 17.50
                 },
                 { 
                     name: 'Ice', 
                     description: 'Bebida ready to drink',
                     modalDescription: 'Ice, bebida pronta para beber com sabor refrescante. Prática e saborosa.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/1c4320c19c0dc660ad941886550960036f969b57/askov%20ice.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/1c4320c19c0dc660ad941886550960036f969b57/askov%20ice.jpg?raw=true',
+                    price: 7.00
                 },
                 { 
                     name: 'Beats Lata', 
                     description: 'Bebida em lata',
                     modalDescription: 'Beats na versão lata, prática e refrescante. Perfeita para festas e eventos.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/e33b7324d3d8cb468318f79f903d33cf9d606c15/beats%20lata.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/e33b7324d3d8cb468318f79f903d33cf9d606c15/beats%20lata.jpg?raw=true',
+                    price: 7.50
                 },
                 { 
                     name: 'Beats Long', 
                     description: 'Bebida em long neck',
                     modalDescription: 'Beats na versão long neck, mantendo o sabor característico da marca.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/c9f9171dc2a60877dd4a78fe566f552fb1191b4b/beats%20long.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/c9f9171dc2a60877dd4a78fe566f552fb1191b4b/beats%20long.jpg?raw=true',
+                    price: 9.00
                 },
                 { 
                     name: 'Smirnoff Ice', 
                     description: 'Bebida com vodka',
                     modalDescription: 'Smirnoff Ice, bebida refrescante com vodka. Doce e com teor alcoólico moderado.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/1c54602885ed5fcf2a62d3ba46fee25112c5e893/smirnoff%20ice.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/1c54602885ed5fcf2a62d3ba46fee25112c5e893/smirnoff%20ice.jpg?raw=true',
+                    price: 9.50
+                },
+                { 
+                    name: 'Black Label', 
+                    description: 'Whisky escocês',
+                    modalDescription: 'Johnnie Walker Black Label, whisky escocês premium.',
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/main/blacklabel.jpg?raw=true',
+                    price: 197.50
                 },
                 { 
                     name: 'Jack Daniels', 
                     description: 'Whiskey americano',
                     modalDescription: 'Jack Daniel\'s, whiskey Tennessee famoso mundialmente. Envelhecido em barris de carvalho.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/6fe0503946cfdb506bb3970bb74302cd81035b8e/jack%20daniels%20destilado.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/6fe0503946cfdb506bb3970bb74302cd81035b8e/jack%20daniels%20destilado.jpg?raw=true',
+                    price: 192.00
                 },
                 { 
                     name: 'Velho Barreiro', 
                     description: 'Cachaça tradicional',
                     modalDescription: 'Velho Barreiro, cachaça brasileira com tradição e qualidade. Uma das mais populares do país.',
-                    imageUrl: ''
-                },
-                { 
-                    name: 'Vila Velha', 
-                    description: 'Cachaça premium',
-                    modalDescription: 'Vila Velha, cachaça premium envelhecida. Sofisticada e saborosa.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 18.50
                 },
                 { 
                     name: 'Old Star', 
                     description: 'Whisky nacional',
                     modalDescription: 'Old Star, whisky brasileiro com variados sabores. Acessível e versátil.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 17.00
                 },
                 { 
                     name: 'Passport', 
                     description: 'Whisky escocês',
                     modalDescription: 'Passport, whisky escocês blend. Equilibrado e acessível.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 72.00
                 },
                 { 
                     name: 'Natu Nobilis', 
                     description: 'Whisky brasileiro',
                     modalDescription: 'Natu Nobilis, whisky nacional com tradição. Suave e agradável.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 54.00
                 },
                 { 
                     name: 'White Horse', 
                     description: 'Whisky escocês',
                     modalDescription: 'White Horse, whisky escocês com carácter. Tradicional e de qualidade.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 97.50
                 },
                 { 
                     name: 'Red Label', 
                     description: 'Johnnie Walker',
                     modalDescription: 'Johnnie Walker Red Label, blend escocês famoso mundialmente. Intenso e versátil.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 125.00
                 },
                 { 
                     name: 'Ballantines', 
                     description: 'Whisky escocês',
                     modalDescription: 'Ballantine\'s, whisky escocês com mais de 40 maltes. Complexo e equilibrado.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 120.00
                 },
                 { 
                     name: 'Smirnoff 1L', 
                     description: 'Vodka Smirnoff 1 litro',
                     modalDescription: 'Smirnoff 1 litro, vodka russa premium. Neutra e de alta qualidade.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 46.00
                 },
                 { 
                     name: 'Askov Sabor 1L', 
                     description: 'Vodka com sabor 1 litro',
                     modalDescription: 'Askov com sabor na versão 1 litro. Diversos sabores disponíveis.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 19.00
                 },
                 { 
                     name: 'Canelinha', 
                     description: 'Licor de canela',
                     modalDescription: 'Canelinha, licor com sabor de canela. Doce e aromático.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 23.00
                 },
                 { 
                     name: 'Dom Bosco', 
                     description: 'Licor brasileiro',
                     modalDescription: 'Dom Bosco, licor brasileiro tradicional. Variedade de sabores disponíveis.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 19.00
                 },
                 { 
                     name: 'Chapinha', 
                     description: 'Cachaça brasileira',
                     modalDescription: 'Chapinha, cachaça brasileira acessível. Perfeita para caipirinhas.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 14.00
+                },
+                { 
+                    name: '3 Medallas', 
+                    description: 'Cachaça premium',
+                    modalDescription: '3 Medallas, cachaça premium envelhecida.',
+                    imageUrl: '',
+                    price: 35.00
                 },
                 { 
                     name: 'Pérgola', 
                     description: 'Licor premium',
                     modalDescription: 'Pérgola, licor premium com ingredientes selecionados. Sofisticado e saboroso.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 35.00
+                },
+                { 
+                    name: 'Chalise', 
+                    description: 'Licor',
+                    modalDescription: 'Chalise, licor tradicional.',
+                    imageUrl: '',
+                    price: 19.00
                 },
                 { 
                     name: 'Dom Feliciano', 
                     description: 'Licor gaúcho',
                     modalDescription: 'Dom Feliciano, licor tradicional do Rio Grande do Sul. Variedade de sabores.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 19.00
                 },
                 { 
                     name: 'Cantinho', 
                     description: 'Bebida ready to drink',
                     modalDescription: 'Cantinho, bebida pronta para consumo. Prática e com diversos sabores.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 8.00
                 },
                 { 
                     name: 'Stempel 355ml', 
                     description: 'Cerveja em garrafa',
                     modalDescription: 'Stempel na versão 355ml, cerveja artesanal em garrafa. Qualidade premium.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 6.75
                 },
                 { 
                     name: 'Stempel 600ml', 
                     description: 'Cerveja artesanal',
                     modalDescription: 'Stempel 600ml, cerveja artesanal em garrafa maior. Para os verdadeiros apreciadores.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 11.00
                 }
             ],
             'aguas': [
@@ -932,49 +1174,57 @@
                     name: 'Água 500ml', 
                     description: 'Água mineral natural',
                     modalDescription: 'Água mineral natural 500ml, pura e refrescante. Ideal para hidratação.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 3.00
                 },
                 { 
                     name: 'Água 1,5L', 
                     description: 'Água mineral família',
                     modalDescription: 'Água mineral 1,5 litros, tamanho ideal para compartilhar. Pura e cristalina.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 5.00
                 },
                 { 
                     name: 'Água de Coco 1L', 
                     description: 'Água de coco natural',
                     modalDescription: 'Água de coco 1 litro, natural e nutritiva. Rica em eletrólitos.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 10.00
                 },
                 { 
                     name: 'Água Gás 500ml', 
                     description: 'Água com gás',
                     modalDescription: 'Água com gás 500ml, refrescante e com borbulhas. Perfeita para digestão.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 3.50
                 },
                 { 
                     name: 'Água Gás 1,5L', 
                     description: 'Água com gás família',
                     modalDescription: 'Água com gás 1,5 litros, tamanho família. Refrescante e digestiva.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 6.00
                 },
                 { 
                     name: 'H2O 500ml', 
                     description: 'Água mineral premium',
                     modalDescription: 'H2O 500ml, água mineral premium. Pura e de alta qualidade.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 5.00
                 },
                 { 
                     name: 'H2O 1,5L', 
                     description: 'Água premium família',
                     modalDescription: 'H2O 1,5 litros, água premium em tamanho família. Qualidade superior.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 9.50
                 },
                 { 
                     name: 'Gatorade', 
                     description: 'Bebida isotônica',
                     modalDescription: 'Gatorade, bebida isotônica para reposição de sais minerais. Diversos sabores disponíveis.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 7.00
                 }
             ],
             'refri-latas': [
@@ -982,49 +1232,57 @@
                     name: 'Sprite/Fanta', 
                     description: 'Refrigerante cítrico',
                     modalDescription: 'Sprite ou Fanta, refrigerantes cítricos e refrescantes. Perfeitos para acompanhar qualquer refeição.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 4.50
                 },
                 { 
                     name: 'Guaraná Antarctica', 
                     description: 'Refrigerante brasileiro',
                     modalDescription: 'Guaraná Antarctica, o refrigerante brasileiro mais tradicional. Sabor único de guaraná.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 4.50
                 },
                 { 
                     name: 'Pepsi', 
                     description: 'Refrigerante de cola',
                     modalDescription: 'Pepsi, o refrigerante que desafia os gigantes. Sabor doce e refrescante.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 4.50
                 },
                 { 
                     name: 'Coca Cola', 
                     description: 'Refrigerante tradicional',
                     modalDescription: 'Coca-Cola, o refrigerante mais famoso do mundo. Sabor único e inconfundível.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 4.50
                 },
                 { 
                     name: 'Schwepps', 
                     description: 'Refrigerante tônico',
                     modalDescription: 'Schwepps, refrigerante tônico com quinino. Perfeito para drinks com gin.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 5.00
                 },
                 { 
                     name: 'Kuat', 
                     description: 'Refrigerante de guaraná',
                     modalDescription: 'Kuat, refrigerante de guaraná da Coca-Cola. Sabor suave e refrescante.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 4.50
                 },
                 { 
                     name: 'Tônica', 
                     description: 'Água tônica',
                     modalDescription: 'Água tônica, refrigerante com quinino. Essencial para gin tônica.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 4.50
                 },
                 { 
                     name: 'Sukita', 
                     description: 'Refrigerante cítrico',
                     modalDescription: 'Sukita, refrigerante cítrico brasileiro. Sabor intenso de laranja.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 4.00
                 }
             ],
             'refri-pet': [
@@ -1032,97 +1290,127 @@
                     name: 'Coca-Cola 2L', 
                     description: 'Refrigerante família',
                     modalDescription: 'Coca-Cola 2 litros, tamanho ideal para festas e reuniões familiares.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/6fa6fb88c4e2a3993772bfcfa926a87c75003a7d/Coca%202L.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/6fa6fb88c4e2a3993772bfcfa926a87c75003a7d/Coca%202L.png?raw=true',
+                    price: 13.00
                 },
                 { 
                     name: 'Sprite 2L', 
                     description: 'Refrigerante cítrico',
                     modalDescription: 'Sprite 2 litros, refrigerante de limão para toda a família.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/253b1021cf00fc5b7ae233fdea49acd20f6282c4/Sprite%202l.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/253b1021cf00fc5b7ae233fdea49acd20f6282c4/Sprite%202l.png?raw=true',
+                    price: 10.00
                 },
                 { 
                     name: 'Fanta 2L', 
                     description: 'Refrigerante laranja',
                     modalDescription: 'Fanta 2 litros, sabor laranja em tamanho família.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/f8a65947616f4ab7e00b7fe7cfac6ac62ed88c61/Fanta%202l.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/f8a65947616f4ab7e00b7fe7cfac6ac62ed88c61/Fanta%202l.png?raw=true',
+                    price: 10.00
                 },
                 { 
                     name: 'Coca Retor 2L', 
                     description: 'Coca-Cola retornável',
                     modalDescription: 'Coca-Cola 2 litros retornável, mesma qualidade, embalagem sustentável.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/a9a90c27b7312f64b40b7605645551382892fae1/coca%20ret%202l.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/a9a90c27b7312f64b40b7605645551382892fae1/coca%20ret%202l.png?raw=true',
+                    price: 9.50
                 },
                 { 
                     name: 'Coca Mini', 
                     description: 'Coca-Cola pequena',
                     modalDescription: 'Coca-Cola mini, tamanho individual prático.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/a85186bf9e0ed33bff0304d1278d92b3053a76ce/coca%20mini.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/a85186bf9e0ed33bff0304d1278d92b3053a76ce/coca%20mini.png?raw=true',
+                    price: 3.00
                 },
                 { 
                     name: 'Conq. Mini', 
                     description: 'Conquista mini',
                     modalDescription: 'Conquista mini, refrigerante em tamanho individual.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/b4bd5c3adec9f3373e4c4ac1273c0e8f0277083f/conquista%20mini.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/b4bd5c3adec9f3373e4c4ac1273c0e8f0277083f/conquista%20mini.png?raw=true',
+                    price: 2.50
                 },
                 { 
                     name: 'Coca 600ml', 
                     description: 'Coca-Cola 600ml',
                     modalDescription: 'Coca-Cola 600ml, tamanho ideal para duas pessoas.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/090496744a06293d38679d10a0cbb4e900eb0fbc/coca%20600ml.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/090496744a06293d38679d10a0cbb4e900eb0fbc/coca%20600ml.png?raw=true',
+                    price: 7.00
                 },
                 { 
                     name: 'Coca Cola 1L', 
                     description: 'Coca-Cola 1 litro',
                     modalDescription: 'Coca-Cola 1 litro, tamanho médio para pequenas reuniões.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/5de838e831e3c7013da34471a307689bbed19b7b/coca1l.png?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/5de838e831e3c7013da34471a307689bbed19b7b/coca1l.png?raw=true',
+                    price: 9.00
                 },
                 { 
                     name: 'Sprite 600ml', 
                     description: 'Sprite 600ml',
                     modalDescription: 'Sprite 600ml, refrigerante cítrico no tamanho ideal.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/9586bb445266034e25276bb154436b205a256a22/sprite%20600ml.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/9586bb445266034e25276bb154436b205a256a22/sprite%20600ml.jpg?raw=true',
+                    price: 6.00
                 },
                 { 
                     name: 'Schwepps 1,5L', 
                     description: 'Schwepps 1,5 litros',
                     modalDescription: 'Descubra o Schweppes Citrus: uma explosão sofisticada de sabores cítricos que une a tradição refinada da marca. Essa bebida gaseificada premium entrega um equilíbrio perfeito entre acidez refrescante, doçura sutil e um toque levemente amargo, resultando em uma experiência efervescente, leve e cheia de caráter. Ideal para momentos de puro prazer, seja puro em um copo com gelo ou elevando coquetéis com sua personalidade inconfundível.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/ba6ad8fae38071b1766e3eed552f84c88fc3e174/schw%201%2C5l.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/ba6ad8fae38071b1766e3eed552f84c88fc3e174/schw%201%2C5l.jpg?raw=true',
+                    price: 10.50
                 },
                 { 
                     name: 'Antárctica 2L', 
                     description: 'Guaraná 2 litros',
                     modalDescription: 'Guaraná Antarctica 2 litros, o sabor brasileiro em tamanho família.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/92d9c1744697732622b8a38ba8445d4ef4f2e472/guarana%20nat%202l.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/92d9c1744697732622b8a38ba8445d4ef4f2e472/guarana%20nat%202l.jpg?raw=true',
+                    price: 11.00
                 },
                 { 
                     name: 'Antárctica 1L', 
                     description: 'Guaraná 1 litro',
                     modalDescription: 'Guaraná Antarctica 1 litro, tamanho médio do tradicional guaraná.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/b52fbff8f5570602d620d4e2b8d2a5b65aabe63b/guarana%201l.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/b52fbff8f5570602d620d4e2b8d2a5b65aabe63b/guarana%201l.jpg?raw=true',
+                    price: 8.00
                 },
                 { 
                     name: 'Conquista 2L', 
                     description: 'Refrigerante 2 litros',
                     modalDescription: 'Conquista 2 litros, refrigerante acessível em tamanho família.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/715b91fbf7ee841c60532476254888e35540ee22/conquista%202l.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/715b91fbf7ee841c60532476254888e35540ee22/conquista%202l.jpg?raw=true',
+                    price: 8.50
+                },
+                { 
+                    name: 'Conquista 600ml', 
+                    description: 'Refrigerante 600ml',
+                    modalDescription: 'Conquista 600ml, refrigerante acessível.',
+                    imageUrl: '',
+                    price: 5.00
                 },
                 { 
                     name: 'Quinze 2L', 
                     description: 'Refrigerante econômico',
                     modalDescription: 'Quinze 2 litros, opção econômica sem abrir mão do sabor.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/cfc48d9e8401150d68bda519ca0b7c2948892526/15%20guarana.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/cfc48d9e8401150d68bda519ca0b7c2948892526/15%20guarana.jpg?raw=true',
+                    price: 7.50
                 },
                 { 
                     name: 'Conti 2L', 
                     description: 'Refrigerante 2 litros',
                     modalDescription: 'Conti 2 litros, marca tradicional em tamanho família.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/047e16e5591deb48124c6121d2e03be1d05a2a91/conti%20cola%202l.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/047e16e5591deb48124c6121d2e03be1d05a2a91/conti%20cola%202l.jpg?raw=true',
+                    price: 8.50
+                },
+                { 
+                    name: 'Conti 600ml', 
+                    description: 'Refrigerante 600ml',
+                    modalDescription: 'Conti 600ml, refrigerante tradicional.',
+                    imageUrl: '',
+                    price: 5.00
                 },
                 { 
                     name: 'Guaraná Mini', 
                     description: 'Guaraná individual',
                     modalDescription: 'Guaraná Antarctica mini, tamanho individual prático.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/b61c1f41e6747bdcec8ef334f664ff5b9b6d9192/guarana%20ant%20mini.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/b61c1f41e6747bdcec8ef334f664ff5b9b6d9192/guarana%20ant%20mini.jpg?raw=true',
+                    price: 2.50
                 }
             ],
             'sucos': [
@@ -1130,31 +1418,43 @@
                     name: 'Del Valle 1L', 
                     description: 'Suco de caixinha',
                     modalDescription: 'Del Valle 1 litro, suco de frutas em caixinha. Variedade de sabores disponíveis.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/b133b7d3077f521eb22e0de0c1056c8dc776a033/del%20valle%201l.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/b133b7d3077f521eb22e0de0c1056c8dc776a033/del%20valle%201l.jpg?raw=true',
+                    price: 10.00
                 },
                 { 
                     name: 'Prats 300ml', 
                     description: 'Suco pequeno',
                     modalDescription: 'Prats 300ml, suco em garrafa pequena. Prático e saboroso.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/0ba9bc97b2398f94e7c747e79bb7687371d2c4c9/prats%20300ml.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/0ba9bc97b2398f94e7c747e79bb7687371d2c4c9/prats%20300ml.jpg?raw=true',
+                    price: 6.00
                 },
                 { 
                     name: 'Kapo', 
                     description: 'Suco em pó',
                     modalDescription: 'Kapo, suco em pó para preparo. Econômico e com diversos sabores.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/5670fe7961aa8deebc4b4d1edffe1d5dcaec2688/kapo%20uva.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/5670fe7961aa8deebc4b4d1edffe1d5dcaec2688/kapo%20uva.jpg?raw=true',
+                    price: 4.00
                 },
                 { 
                     name: 'Prats 1,5L', 
                     description: 'Suco família',
                     modalDescription: 'Prats 1,5 litros, suco em garrafa grande. Ideal para compartilhar.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/cab0e3ca6d53e5c0383fca5da1241f3e68c0b3b6/Prats%201%2C5L.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/cab0e3ca6d53e5c0383fca5da1241f3e68c0b3b6/Prats%201%2C5L.jpg?raw=true',
+                    price: 23.00
+                },
+                { 
+                    name: 'Life 300ml', 
+                    description: 'Suco premium',
+                    modalDescription: 'Life 300ml, suco premium com polpa de fruta. Qualidade superior.',
+                    imageUrl: '',
+                    price: 7.00
                 },
                 { 
                     name: 'Life 900ml', 
                     description: 'Suco premium',
                     modalDescription: 'Life 900ml, suco premium com polpa de fruta. Qualidade superior.',
-                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/2da6000e4d7a351882e1d48fa734aa19c2ecb93c/life%20laranja.jpg?raw=true'
+                    imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/2da6000e4d7a351882e1d48fa734aa19c2ecb93c/life%20laranja.jpg?raw=true',
+                    price: 14.00
                 }
             ],
             'energeticos': [
@@ -1162,43 +1462,57 @@
                     name: 'Big Power 2L', 
                     description: 'Energético grande',
                     modalDescription: 'Big Power 2 litros, energético em tamanho grande. Para festas longas.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 12.00
                 },
                 { 
                     name: 'Monster 473ml', 
                     description: 'Energético importado',
                     modalDescription: 'Monster 473ml, energético importado premium. Alta concentração.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 12.00
                 },
                 { 
                     name: 'Red Bull 250ml', 
                     description: 'Energético pequeno',
                     modalDescription: 'Red Bull 250ml, o energético mais famoso do mundo em tamanho pequeno.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 13.00
                 },
                 { 
                     name: 'One 2L', 
                     description: 'Energético econômico',
                     modalDescription: 'One 2 litros, energético em tamanho grande e preço acessível.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 10.00
                 },
                 { 
                     name: 'Bally 2L', 
                     description: 'Energético 2 litros',
                     modalDescription: 'Bally 2 litros, energético nacional em tamanho família.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 14.00
                 },
                 { 
                     name: 'Red Bull 355ml', 
                     description: 'Energético médio',
                     modalDescription: 'Red Bull 355ml, tamanho médio do famoso energético.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 15.00
                 },
                 { 
                     name: 'Bally 473ml', 
                     description: 'Energético lata grande',
                     modalDescription: 'Bally 473ml, energético em lata grande. Sabor intenso.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 10.00
+                },
+                { 
+                    name: 'Bally 250ml', 
+                    description: 'Energético pequeno',
+                    modalDescription: 'Bally 250ml, energético nacional em tamanho pequeno.',
+                    imageUrl: '',
+                    price: 6.50
                 }
             ],
             'gelo-carvao': [
@@ -1206,34 +1520,41 @@
                     name: 'Gelo Saborizado', 
                     description: 'Gelo com sabor',
                     modalDescription: 'Gelo saborizado, cubos de gelo com sabores especiais para drinks.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 3.00
                 },
                 { 
                     name: 'Carvão 3kg', 
                     description: 'Carvão para churrasco',
                     modalDescription: 'Carvão 3kg, carvão vegetal de qualidade para churrasco.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 20.00
                 },
                 { 
                     name: 'Gelo 4,5Kg', 
                     description: 'Gelo em saco',
                     modalDescription: 'Gelo 4,5kg, saco de gelo para drinks e conservação.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 10.00
                 },
                 { 
                     name: 'Carvão 6,5Kg', 
                     description: 'Carvão grande',
                     modalDescription: 'Carvão 6,5kg, saco grande para churrascos prolongados.',
-                    imageUrl: ''
+                    imageUrl: '',
+                    price: 30.00
                 }
             ]
         };
+
+        // Variáveis globais
+        let cart = [];
+        let currentProduct = null;
 
         // MOSTRAR CATEGORIA
         function showCategory(categoryId, categoryName) {
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('menuPage').classList.add('show');
-            document.querySelector('.back-button').classList.add('show');
             document.getElementById('menuTitle').textContent = categoryName;
 
             const container = document.getElementById('productsContainer');
@@ -1246,6 +1567,7 @@
                 card.innerHTML = `
                     <div class="product-name">${product.name}</div>
                     <div class="product-info">${product.description}</div>
+                    <div class="product-info">R$ ${product.price.toFixed(2)}</div>
                 `;
                 card.addEventListener('click', () => showProductModal(product, categoryId, index));
                 container.appendChild(card);
@@ -1256,6 +1578,7 @@
         function showProductModal(product, categoryId, index) {
             document.getElementById('modalProductName').textContent = product.name;
             document.getElementById('modalProductDescription').textContent = product.modalDescription;
+            document.getElementById('modalProductPrice').textContent = `R$ ${product.price.toFixed(2)}`;
             
             const modalImage = document.getElementById('modalProductImage');
             if (product.imageUrl) {
@@ -1265,14 +1588,116 @@
                 modalImage.style.display = 'none';
             }
             
+            // Armazena o produto atual para adicionar ao carrinho
+            currentProduct = product;
+            
             document.getElementById('productModal').classList.add('show');
-            document.body.style.overflow = 'hidden'; // Impede scroll da página principal
+            document.body.style.overflow = 'hidden';
+        }
+
+        // ADICIONAR AO CARRINHO DO MODAL
+        function addToCartFromModal() {
+            if (currentProduct) {
+                addToCart(currentProduct.name, currentProduct.price);
+                closeModal();
+            }
+        }
+
+        // ADICIONAR AO CARRINHO
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateCart();
+            
+            // Feedback visual
+            const button = document.querySelector('.modal-add-to-cart');
+            const originalText = button.textContent;
+            button.textContent = '✓ Adicionado!';
+            button.style.background = 'linear-gradient(135deg, #28a745 0%, #218838 100%)';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+            }, 1500);
+        }
+
+        // ATUALIZAR CARRINHO
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            cartItems.innerHTML = '';
+            let total = 0;
+            
+            cart.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <span>${item.name}</span>
+                    <span>R$${item.price.toFixed(2)}</span>
+                `;
+                cartItems.appendChild(div);
+                total += item.price;
+            });
+            
+            document.getElementById('cart-total').textContent = total.toFixed(2);
+            
+            // Mostrar/ocultar carrinho baseado no conteúdo
+            if (cart.length > 0) {
+                document.getElementById('cart').style.display = 'block';
+            }
+        }
+
+        // ENVIAR PEDIDO POR WHATSAPP
+        function sendToWhatsApp() {
+            const customerName = document.getElementById('customer-name').value;
+            if (!customerName) {
+                alert('Por favor, digite seu nome!');
+                return;
+            }
+            
+            if (cart.length === 0) {
+                alert('Seu carrinho está vazio!');
+                return;
+            }
+            
+            let message = `*PEDIDO BEBCOM LOUNGE - DELIVERY*\n`;
+            message += `Cliente: ${customerName}\n`;
+            message += `Data: ${new Date().toLocaleString('pt-BR')}\n`;
+            message += `\n*ITENS DO PEDIDO:*\n`;
+            
+            cart.forEach(item => {
+                message += `• ${item.name} - R$ ${item.price.toFixed(2)}\n`;
+            });
+            
+            message += `\n*TOTAL: R$ ${document.getElementById('cart-total').textContent}*`;
+            message += `\n\n*Obrigado pelo pedido! 🍹*`;
+            
+            const whatsappUrl = `https://wa.me/+5514996130369?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+            
+            // Limpar carrinho após envio
+            cart = [];
+            document.getElementById('customer-name').value = '';
+            updateCart();
+            document.getElementById('cart').style.display = 'none';
+            
+            // Feedback
+            alert('Pedido enviado com sucesso! Aguarde o retorno da nossa equipe.');
+        }
+
+        // LIMPAR CARRINHO
+        function clearCart() {
+            if (confirm('Tem certeza que deseja limpar o carrinho?')) {
+                cart = [];
+                document.getElementById('customer-name').value = '';
+                updateCart();
+                document.getElementById('cart').style.display = 'none';
+            }
         }
 
         // FECHAR MODAL
         function closeModal() {
             document.getElementById('productModal').classList.remove('show');
-            document.body.style.overflow = 'auto'; // Restaura scroll da página principal
+            document.body.style.overflow = 'auto';
+            currentProduct = null;
         }
 
         // FECHAR MODAL AO CLICAR FORA
@@ -1293,14 +1718,14 @@
         function goHome() {
             document.getElementById('homePage').classList.remove('hidden');
             document.getElementById('menuPage').classList.remove('show');
-            document.querySelector('.back-button').classList.remove('show');
-            closeModal(); // Fecha modal se estiver aberto
+            closeModal();
         }
 
         // INICIALIZAR
         document.addEventListener('DOMContentLoaded', function() {
-            // Opcional: Mostrar primeira categoria automaticamente
-            // showCategory('drinks-whisky', 'Drinks Whisky');
+            // Inicialmente esconder o carrinho se estiver vazio
+            updateCart();
+            document.getElementById('cart').style.display = 'none';
         });
     </script>
 </body>
