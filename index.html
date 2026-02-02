@@ -1,3 +1,7 @@
+
+
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1138,7 +1142,7 @@
         };
 
         // ============================================
-        // DADOS DOS PRODUTOS DO ANEXO 1
+        // DADOS DOS PRODUTOS DO ANEXO 1 - CORRIGIDOS
         // ============================================
         const products = {
             'drinks-whisky': [
@@ -2951,7 +2955,7 @@
             return false;
         }
 
-        // INICIAR VERIFICAÇÃO PERIÓDICA DO STATUS
+         // INICIAR VERIFICAÇÃO PERIÓDICA DO STATUS
         function startPaymentStatusCheck(preferenceId) {
             const checkInterval = setInterval(async () => {
                 const isPaid = await checkMercadoPagoStatus(preferenceId);
