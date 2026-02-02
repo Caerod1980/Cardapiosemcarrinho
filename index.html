@@ -327,11 +327,11 @@
             position: fixed;
             right: 20px;
             top: 100px;
-            width: 300px;
+            width: 350px;
             background: rgba(26, 26, 26, 0.95);
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
             z-index: 999;
             border: 1px solid #dc2626;
             backdrop-filter: blur(10px);
@@ -341,7 +341,7 @@
             color: white;
             text-align: center;
             margin-bottom: 15px;
-            font-size: 20px;
+            font-size: 22px;
         }
 
         .cart-items {
@@ -355,9 +355,9 @@
             justify-content: space-between;
             align-items: center;
             margin: 8px 0;
-            padding: 8px;
+            padding: 10px;
             background: rgba(45, 45, 45, 0.5);
-            border-radius: 5px;
+            border-radius: 8px;
             color: white;
             font-size: 14px;
         }
@@ -372,11 +372,11 @@
 
         .cart-input {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
+            padding: 12px;
+            margin: 8px 0;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid #333;
-            border-radius: 5px;
+            border-radius: 8px;
             color: white;
             font-size: 14px;
         }
@@ -389,13 +389,14 @@
             background: linear-gradient(135deg, #28a745 0%, #218838 100%);
             color: white;
             border: none;
-            padding: 12px;
+            padding: 14px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
             width: 100%;
             transition: all 0.3s ease;
+            margin-top: 10px;
         }
 
         .checkout-button:hover {
@@ -407,7 +408,7 @@
             background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
@@ -419,6 +420,147 @@
         .clear-cart-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        /* ESTILOS PARA QUANTIDADE */
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #444;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .quantity-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .quantity-btn.minus {
+            background: rgba(220, 38, 38, 0.2);
+            border-color: #dc2626;
+        }
+
+        .quantity-btn.plus {
+            background: rgba(40, 167, 69, 0.2);
+            border-color: #28a745;
+        }
+
+        .remove-item-btn {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .remove-item-btn:hover {
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        /* ESTILOS PARA LOCALIZAÇÃO */
+        .location-info {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            background: rgba(77, 150, 255, 0.1);
+            border-left: 4px solid #4d96ff;
+            font-size: 14px;
+            line-height: 1.4;
+            animation: slideIn 0.3s ease;
+        }
+
+        .location-info.error {
+            background: rgba(220, 38, 38, 0.1);
+            border-left-color: #dc2626;
+        }
+
+        .location-info.success {
+            background: rgba(107, 207, 127, 0.1);
+            border-left-color: #6bcf7f;
+        }
+
+        .location-info.warning {
+            background: rgba(255, 217, 61, 0.1);
+            border-left-color: #ffd93d;
+        }
+
+        .location-btn {
+            background: linear-gradient(135deg, #4d96ff 0%, #2d7ed8 100%) !important;
+            border: none;
+            color: white;
+            padding: 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .location-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(77, 150, 255, 0.4);
+        }
+
+        .location-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .delivery-fee {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4d96ff;
+            text-align: center;
+            margin: 15px 0;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(77, 150, 255, 0.15) 0%, rgba(77, 150, 255, 0.05) 100%);
+            border-radius: 10px;
+            border: 1px solid rgba(77, 150, 255, 0.3);
+            animation: slideIn 0.5s ease;
+        }
+
+        .delivery-distance {
+            font-size: 14px;
+            color: #aaa;
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+        }
+
+        #total-with-delivery {
+            color: #ffd93d;
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #444;
+            animation: slideIn 0.6s ease;
         }
 
         /* ANIMAÇÕES */
@@ -434,6 +576,17 @@
 
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -482,9 +635,24 @@
                 right: 0;
                 top: auto;
                 width: 100%;
-                border-radius: 10px 10px 0 0;
-                max-height: 60vh;
+                border-radius: 12px 12px 0 0;
+                max-height: 70vh;
                 overflow-y: auto;
+                padding: 15px;
+            }
+            
+            .cart-items {
+                max-height: 200px;
+            }
+            
+            .location-info {
+                font-size: 13px;
+                padding: 10px;
+            }
+            
+            .location-btn {
+                padding: 12px;
+                font-size: 15px;
             }
         }
 
@@ -520,6 +688,17 @@
 
             .modal-description {
                 font-size: 13px;
+            }
+            
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .cart-item > div {
+                width: 100%;
+                justify-content: space-between;
             }
         }
     </style>
@@ -602,14 +781,54 @@
     <div class="cart" id="cart">
         <h2>🛒 Carrinho</h2>
         <div class="cart-items" id="cart-items"></div>
-        <div class="cart-total">Total: R$<span id="cart-total">0.00</span></div>
+        
+        <div id="delivery-info" style="display: none;">
+            <div class="delivery-fee">Taxa de Entrega: R$<span id="delivery-fee">0.00</span></div>
+            <div class="delivery-distance">Distância: <span id="delivery-distance">0</span> km</div>
+        </div>
+        
+        <div class="cart-total">Subtotal: R$<span id="cart-subtotal">0.00</span></div>
+        <div class="cart-total" id="total-with-delivery" style="display: none;">Total Geral: R$<span id="cart-total">0.00</span></div>
+        
         <input type="text" id="customer-name" class="cart-input" placeholder="Digite seu nome" required>
-        <button class="checkout-button" onclick="sendToWhatsApp()">Enviar Pedido</button>
-        <button class="clear-cart-button" onclick="clearCart()">Limpar Carrinho</button>
+        
+        <!-- Campos de endereço -->
+        <div style="margin: 10px 0;">
+            <label style="color: white; display: block; margin-bottom: 5px;">Como deseja fornecer o endereço?</label>
+            <select id="address-method" class="cart-input" style="width: 100%;" onchange="toggleAddressMethod()">
+                <option value="gps">📍 Usar minha localização GPS</option>
+                <option value="manual">✏️ Digitar endereço manualmente</option>
+            </select>
+        </div>
+        
+        <div id="manual-address-section" style="display: none;">
+            <input type="text" id="customer-address" class="cart-input" placeholder="Digite seu endereço completo">
+        </div>
+        
+        <div id="gps-section">
+            <button type="button" class="location-btn" onclick="getUserLocation()">
+                📍 Obter minha localização
+            </button>
+            <div id="location-info" class="location-info" style="display: none;">
+                <span id="location-status">Localização obtida com sucesso!</span>
+            </div>
+        </div>
+        
+        <!-- Opção de retirada/entrega -->
+        <div style="margin: 10px 0;">
+            <label style="color: white; display: block; margin-bottom: 5px;">Tipo de Pedido:</label>
+            <select id="order-type" class="cart-input" style="width: 100%;" onchange="toggleDeliveryFields()">
+                <option value="pickup">🏪 Retirada no Local</option>
+                <option value="delivery">🚚 Entrega</option>
+            </select>
+        </div>
+        
+        <button class="checkout-button" onclick="sendToWhatsApp()">📱 Enviar Pedido pelo WhatsApp</button>
+        <button class="clear-cart-button" onclick="clearCart()">🗑️ Limpar Carrinho</button>
     </div>
 
     <script>
-        // DADOS DOS PRODUTOS COM PREÇOS (do anexo 1)
+        // DADOS DOS PRODUTOS COM PREÇOS
         const products = {
             'drinks-whisky': [
                 { 
@@ -1547,9 +1766,28 @@
             ]
         };
 
+        // ============================================
+        // SISTEMA DE GPS E LOCALIZAÇÃO
+        // ============================================
+
         // Variáveis globais
         let cart = [];
         let currentProduct = null;
+        let userLocation = null;
+
+        // Ponto fixo do BebCom Lounge (coordenadas exatas do Google Maps)
+        const FIXED_LOCATION = {
+            lat: -22.35892,           // Latitude do BebCom Lounge
+            lng: -49.0987233,         // Longitude do BebCom Lounge
+            address: "Avenida José Henrique Ferraz 18-10, Ourinhos - SP"
+        };
+        const DELIVERY_RATE_PER_KM = 2.65;
+        const MIN_DELIVERY_FEE = 5.00;
+        const MIN_DELIVERY_DISTANCE = 0.5; // 500 metros
+
+        // ============================================
+        // FUNÇÕES PRINCIPAIS
+        // ============================================
 
         // MOSTRAR CATEGORIA
         function showCategory(categoryId, categoryName) {
@@ -1588,9 +1826,7 @@
                 modalImage.style.display = 'none';
             }
             
-            // Armazena o produto atual para adicionar ao carrinho
             currentProduct = product;
-            
             document.getElementById('productModal').classList.add('show');
             document.body.style.overflow = 'hidden';
         }
@@ -1605,7 +1841,18 @@
 
         // ADICIONAR AO CARRINHO
         function addToCart(name, price) {
-            cart.push({ name, price });
+            const existingItemIndex = cart.findIndex(item => item.name === name);
+            
+            if (existingItemIndex !== -1) {
+                cart[existingItemIndex].quantity += 1;
+            } else {
+                cart.push({ 
+                    name, 
+                    price, 
+                    quantity: 1 
+                });
+            }
+            
             updateCart();
             
             // Feedback visual
@@ -1624,30 +1871,379 @@
         function updateCart() {
             const cartItems = document.getElementById('cart-items');
             cartItems.innerHTML = '';
-            let total = 0;
+            let subtotal = 0;
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<div style="text-align: center; color: #aaa; padding: 20px;">Seu carrinho está vazio</div>';
+                document.getElementById('cart-subtotal').textContent = '0.00';
+                updateTotalWithDelivery();
+                return;
+            }
             
             cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                
                 const div = document.createElement('div');
                 div.className = 'cart-item';
                 div.innerHTML = `
-                    <span>${item.name}</span>
-                    <span>R$${item.price.toFixed(2)}</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <div>
+                            <strong>${item.name}</strong><br>
+                            <small>R$${item.price.toFixed(2)} un.</small>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button onclick="decreaseQuantity(${index})" class="quantity-btn minus">-</button>
+                            <span style="min-width: 20px; text-align: center;">${item.quantity}</span>
+                            <button onclick="increaseQuantity(${index})" class="quantity-btn plus">+</button>
+                            <span style="margin-left: 10px; font-weight: bold;">R$${itemTotal.toFixed(2)}</span>
+                            <button onclick="removeFromCart(${index})" class="remove-item-btn">✕</button>
+                        </div>
+                    </div>
                 `;
                 cartItems.appendChild(div);
-                total += item.price;
             });
             
-            document.getElementById('cart-total').textContent = total.toFixed(2);
+            document.getElementById('cart-subtotal').textContent = subtotal.toFixed(2);
+            updateTotalWithDelivery();
             
-            // Mostrar/ocultar carrinho baseado no conteúdo
             if (cart.length > 0) {
                 document.getElementById('cart').style.display = 'block';
             }
         }
 
-        // ENVIAR PEDIDO POR WHATSAPP
-        function sendToWhatsApp() {
+        // AUMENTAR QUANTIDADE
+        function increaseQuantity(index) {
+            if (cart[index]) {
+                cart[index].quantity += 1;
+                updateCart();
+            }
+        }
+
+        // DIMINUIR QUANTIDADE
+        function decreaseQuantity(index) {
+            if (cart[index]) {
+                if (cart[index].quantity > 1) {
+                    cart[index].quantity -= 1;
+                } else {
+                    cart.splice(index, 1);
+                }
+                updateCart();
+            }
+        }
+
+        // REMOVER ITEM DO CARRINHO
+        function removeFromCart(index) {
+            if (confirm('Remover este item do carrinho?')) {
+                cart.splice(index, 1);
+                updateCart();
+            }
+        }
+
+        // ============================================
+        // SISTEMA DE LOCALIZAÇÃO GPS
+        // ============================================
+
+        // FUNÇÃO PARA CALCULAR DISTÂNCIA (Fórmula Haversine)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Raio da Terra em km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // OBTER LOCALIZAÇÃO DO USUÁRIO VIA GPS
+        function getUserLocation() {
+            const locationInfo = document.getElementById('location-info');
+            const locationStatus = document.getElementById('location-status');
+            
+            // Verificar HTTPS (obrigatório para geolocation)
+            if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+                locationStatus.innerHTML = '⚠️ Para usar GPS, acesse via HTTPS (https://...)';
+                locationInfo.className = 'location-info warning';
+                locationInfo.style.display = 'block';
+                return;
+            }
+            
+            if (!navigator.geolocation) {
+                locationStatus.innerHTML = '❌ Seu navegador não suporta geolocalização.';
+                locationInfo.className = 'location-info error';
+                locationInfo.style.display = 'block';
+                return;
+            }
+            
+            locationStatus.innerHTML = '📍 Obtendo sua localização...';
+            locationInfo.className = 'location-info warning';
+            locationInfo.style.display = 'block';
+            
+            navigator.geolocation.getCurrentPosition(
+                // Sucesso
+                function(position) {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                        timestamp: new Date().toLocaleTimeString('pt-BR')
+                    };
+                    
+                    // Calcular distância até o BebCom
+                    const distance = calculateDistance(
+                        FIXED_LOCATION.lat,
+                        FIXED_LOCATION.lng,
+                        userLocation.lat,
+                        userLocation.lng
+                    );
+                    
+                    locationStatus.innerHTML = `
+                        ✅ <strong>Localização obtida!</strong><br>
+                        📏 <strong>${distance.toFixed(1)} km</strong> do BebCom Lounge<br>
+                        🕐 ${userLocation.timestamp}
+                    `;
+                    locationInfo.className = 'location-info success';
+                    
+                    // Se for entrega, calcular taxa
+                    if (document.getElementById('order-type').value === 'delivery') {
+                        calculateDeliveryFeeFromGPS();
+                    }
+                    
+                    // Tentar obter endereço
+                    getAddressFromCoordinates(userLocation.lat, userLocation.lng);
+                },
+                // Erro
+                function(error) {
+                    let errorMessage = "❌ ";
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += "Permissão de localização negada.<br>";
+                            errorMessage += "Habilite a localização nas configurações do seu navegador.";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += "Localização indisponível.<br>";
+                            errorMessage += "Verifique se o GPS está ativado no seu dispositivo.";
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += "Tempo limite excedido.<br>";
+                            errorMessage += "Tente novamente em uma área com melhor sinal.";
+                            break;
+                        default:
+                            errorMessage += "Erro ao obter localização.";
+                    }
+                    
+                    locationStatus.innerHTML = errorMessage;
+                    locationInfo.className = 'location-info error';
+                    userLocation = null;
+                    
+                    // Sugerir usar endereço manual
+                    setTimeout(() => {
+                        if (!userLocation) {
+                            locationStatus.innerHTML += `<br><br>💡 <em>Prefira digitar o endereço manualmente?</em>`;
+                            document.getElementById('address-method').value = 'manual';
+                            toggleAddressMethod();
+                        }
+                    }, 2000);
+                },
+                // Opções
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 60000
+                }
+            );
+        }
+
+        // OBTER ENDEREÇO A PARTIR DAS COORDENADAS
+        async function getAddressFromCoordinates(lat, lng) {
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=pt-BR`
+                );
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.display_name) {
+                        let formattedAddress = data.display_name;
+                        const addressParts = formattedAddress.split(', ');
+                        if (addressParts.length > 4) {
+                            formattedAddress = addressParts.slice(0, 4).join(', ') + ', Ourinhos - SP';
+                        }
+                        
+                        document.getElementById('customer-address').value = formattedAddress;
+                        
+                        const locationStatus = document.getElementById('location-status');
+                        const currentText = locationStatus.innerHTML;
+                        locationStatus.innerHTML = currentText + `<br>🏠 ${formattedAddress.split(',')[0]}`;
+                        
+                        return formattedAddress;
+                    }
+                }
+            } catch (error) {
+                console.log("Info: Endereço por coordenadas não disponível");
+            }
+            
+            const coordsAddress = `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            document.getElementById('customer-address').value = coordsAddress;
+            return coordsAddress;
+        }
+
+        // CALCULAR TAXA DE ENTREGA COM GPS
+        function calculateDeliveryFeeFromGPS() {
+            if (!userLocation) {
+                alert("Por favor, clique em 'Obter minha localização' primeiro.");
+                return;
+            }
+            
+            const distance = calculateDistance(
+                FIXED_LOCATION.lat, 
+                FIXED_LOCATION.lng,
+                userLocation.lat,
+                userLocation.lng
+            );
+            
+            const actualDistance = Math.max(distance, MIN_DELIVERY_DISTANCE);
+            const deliveryFee = actualDistance * DELIVERY_RATE_PER_KM;
+            const finalFee = Math.max(deliveryFee, MIN_DELIVERY_FEE).toFixed(2);
+            
+            showDeliveryInfo(actualDistance, parseFloat(finalFee));
+            
+            if (!document.getElementById('customer-address').value || 
+                document.getElementById('customer-address').value.includes('GPS')) {
+                getAddressFromCoordinates(userLocation.lat, userLocation.lng);
+            }
+        }
+
+        // CALCULAR TAXA DE ENTREGA COM ENDEREÇO MANUAL
+        async function calculateDeliveryFeeFromAddress() {
+            const address = document.getElementById('customer-address').value;
+            
+            if (!address || address === 'Retirada no Local') {
+                hideDeliveryInfo();
+                return;
+            }
+            
+            try {
+                // Simulação - em produção usar API de geocodificação
+                const distance = Math.random() * 9 + 1; // 1-10km para demonstração
+                const actualDistance = Math.max(distance, MIN_DELIVERY_DISTANCE);
+                const deliveryFee = actualDistance * DELIVERY_RATE_PER_KM;
+                const finalFee = Math.max(deliveryFee, MIN_DELIVERY_FEE).toFixed(2);
+                
+                showDeliveryInfo(actualDistance, parseFloat(finalFee));
+            } catch (error) {
+                console.error('Erro ao calcular entrega:', error);
+                showDeliveryInfo(5, MIN_DELIVERY_FEE);
+            }
+        }
+
+        // MOSTRAR INFORMAÇÕES DE ENTREGA
+        function showDeliveryInfo(distance, fee) {
+            const deliveryInfo = document.getElementById('delivery-info');
+            const deliveryFeeElement = document.getElementById('delivery-fee');
+            const distanceElement = document.getElementById('delivery-distance');
+            const totalElement = document.getElementById('total-with-delivery');
+            
+            deliveryInfo.style.display = 'block';
+            deliveryFeeElement.textContent = fee.toFixed(2);
+            distanceElement.textContent = distance.toFixed(1);
+            totalElement.style.display = 'block';
+            
+            deliveryInfo.style.animation = 'pulse 0.5s ease';
+            setTimeout(() => {
+                deliveryInfo.style.animation = '';
+            }, 500);
+            
+            updateTotalWithDelivery();
+        }
+
+        // OCULTAR INFORMAÇÕES DE ENTREGA
+        function hideDeliveryInfo() {
+            document.getElementById('delivery-info').style.display = 'none';
+            document.getElementById('total-with-delivery').style.display = 'none';
+            updateTotalWithDelivery();
+        }
+
+        // ATUALIZAR TOTAL COM ENTREGA
+        function updateTotalWithDelivery() {
+            const subtotal = parseFloat(document.getElementById('cart-subtotal').textContent) || 0;
+            const orderType = document.getElementById('order-type').value;
+            
+            if (orderType === 'delivery') {
+                const deliveryFee = parseFloat(document.getElementById('delivery-fee').textContent) || 0;
+                const total = subtotal + deliveryFee;
+                document.getElementById('cart-total').textContent = total.toFixed(2);
+            } else {
+                document.getElementById('cart-total').textContent = subtotal.toFixed(2);
+            }
+        }
+
+        // ALTERNAR ENTRE GPS E ENDEREÇO MANUAL
+        function toggleAddressMethod() {
+            const method = document.getElementById('address-method').value;
+            const manualSection = document.getElementById('manual-address-section');
+            const gpsSection = document.getElementById('gps-section');
+            
+            if (method === 'manual') {
+                manualSection.style.display = 'block';
+                gpsSection.style.display = 'none';
+                document.getElementById('customer-address').value = '';
+                userLocation = null;
+                document.getElementById('location-info').style.display = 'none';
+            } else {
+                manualSection.style.display = 'none';
+                gpsSection.style.display = 'block';
+                document.getElementById('customer-address').value = '';
+                userLocation = null;
+            }
+        }
+
+        // ATIVAR/DESATIVAR CAMPOS DE ENTREGA
+        function toggleDeliveryFields() {
+            const orderType = document.getElementById('order-type').value;
+            const addressMethod = document.getElementById('address-method');
+            const manualSection = document.getElementById('manual-address-section');
+            const gpsSection = document.getElementById('gps-section');
+            
+            if (orderType === 'delivery') {
+                addressMethod.disabled = false;
+                addressMethod.style.opacity = '1';
+                
+                if (addressMethod.value === 'manual') {
+                    manualSection.style.display = 'block';
+                    gpsSection.style.display = 'none';
+                } else {
+                    manualSection.style.display = 'none';
+                    gpsSection.style.display = 'block';
+                }
+                
+                // Calcular entrega se já tiver dados
+                if (addressMethod.value === 'gps' && userLocation) {
+                    calculateDeliveryFeeFromGPS();
+                } else if (addressMethod.value === 'manual' && document.getElementById('customer-address').value) {
+                    calculateDeliveryFeeFromAddress();
+                }
+            } else {
+                addressMethod.disabled = true;
+                addressMethod.style.opacity = '0.5';
+                manualSection.style.display = 'none';
+                gpsSection.style.display = 'none';
+                document.getElementById('customer-address').value = 'Retirada no Local';
+                hideDeliveryInfo();
+            }
+        }
+
+        // ============================================
+        // ENVIO DO PEDIDO PARA WHATSAPP
+        // ============================================
+
+        async function sendToWhatsApp() {
             const customerName = document.getElementById('customer-name').value;
+            const orderType = document.getElementById('order-type').value;
+            const addressMethod = document.getElementById('address-method').value;
+            
             if (!customerName) {
                 alert('Por favor, digite seu nome!');
                 return;
@@ -1658,39 +2254,115 @@
                 return;
             }
             
-            let message = `*PEDIDO BEBCOM LOUNGE - DELIVERY*\n`;
-            message += `Cliente: ${customerName}\n`;
-            message += `Data: ${new Date().toLocaleString('pt-BR')}\n`;
-            message += `\n*ITENS DO PEDIDO:*\n`;
+            if (orderType === 'delivery') {
+                if (addressMethod === 'gps' && !userLocation) {
+                    alert('Por favor, obtenha sua localização primeiro!');
+                    return;
+                }
+                
+                if (addressMethod === 'manual') {
+                    const address = document.getElementById('customer-address').value;
+                    if (!address || address === 'Retirada no Local') {
+                        alert('Por favor, digite o endereço de entrega!');
+                        return;
+                    }
+                }
+            }
             
-            cart.forEach(item => {
-                message += `• ${item.name} - R$ ${item.price.toFixed(2)}\n`;
+            // Criar mensagem do pedido
+            let message = `*🍹 PEDIDO BEBCOM LOUNGE - DELIVERY 🚚*\n`;
+            message += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            message += `👤 *Cliente:* ${customerName}\n`;
+            message += `📦 *Tipo:* ${orderType === 'delivery' ? 'ENTREGA' : 'RETIRADA NO LOCAL'}\n`;
+            
+            if (orderType === 'delivery') {
+                if (addressMethod === 'gps') {
+                    message += `📍 *Localização via GPS:*\n`;
+                    message += `Lat: ${userLocation.lat.toFixed(6)}\n`;
+                    message += `Lng: ${userLocation.lng.toFixed(6)}\n`;
+                    
+                    const address = await getAddressFromCoordinates(userLocation.lat, userLocation.lng);
+                    if (address && !address.includes('📍')) {
+                        message += `🏠 *Endereço:* ${address}\n`;
+                    }
+                } else {
+                    const address = document.getElementById('customer-address').value;
+                    message += `🏠 *Endereço:* ${address}\n`;
+                }
+                message += `\n🚚 *Ponto de Partida:*\n${FIXED_LOCATION.address}\n`;
+            }
+            
+            message += `\n📅 *Data/Hora:* ${new Date().toLocaleString('pt-BR')}\n`;
+            message += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            message += `\n🛒 *ITENS DO PEDIDO:*\n`;
+            
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                message += `\n${index + 1}. ${item.name}\n`;
+                message += `   ${item.quantity} × R$ ${item.price.toFixed(2)} = R$ ${itemTotal.toFixed(2)}`;
             });
             
-            message += `\n*TOTAL: R$ ${document.getElementById('cart-total').textContent}*`;
-            message += `\n\n*Obrigado pelo pedido! 🍹*`;
+            const subtotal = parseFloat(document.getElementById('cart-subtotal').textContent);
+            message += `\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            message += `💰 *Subtotal:* R$ ${subtotal.toFixed(2)}\n`;
             
-            const whatsappUrl = `https://wa.me/+5514996130369?text=${encodeURIComponent(message)}`;
+            if (orderType === 'delivery') {
+                const deliveryFee = parseFloat(document.getElementById('delivery-fee').textContent) || 0;
+                const distance = document.getElementById('delivery-distance').textContent || '0';
+                const total = subtotal + deliveryFee;
+                
+                message += `📏 *Distância:* ${distance} km\n`;
+                message += `🚚 *Taxa de Entrega:* R$ ${deliveryFee.toFixed(2)}\n`;
+                message += `💳 *Total Geral:* R$ ${total.toFixed(2)}\n`;
+            }
+            
+            message += `\n━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            message += `✅ *Pedido confirmado!*\n`;
+            message += `⏱️ *Tempo estimado:* ${orderType === 'delivery' ? '40-60 minutos' : '15-20 minutos'}\n`;
+            message += `📞 *Dúvidas:* (14) 99613-0369\n`;
+            message += `\n🎉 *Obrigado pela preferência!*\n`;
+            message += `_BebCom Lounge - Seu momento, nossa companhia_`;
+            
+            // Gerar link do WhatsApp
+            const phoneNumber = '5514996130369';
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+            
+            // Abrir WhatsApp
             window.open(whatsappUrl, '_blank');
             
             // Limpar carrinho após envio
-            cart = [];
-            document.getElementById('customer-name').value = '';
-            updateCart();
-            document.getElementById('cart').style.display = 'none';
+            resetOrderForm();
             
             // Feedback
-            alert('Pedido enviado com sucesso! Aguarde o retorno da nossa equipe.');
+            alert('✅ Pedido enviado com sucesso!\n\nAguarde o retorno da nossa equipe no WhatsApp.\nTempo estimado: 5-10 minutos.');
         }
 
         // LIMPAR CARRINHO
         function clearCart() {
             if (confirm('Tem certeza que deseja limpar o carrinho?')) {
-                cart = [];
-                document.getElementById('customer-name').value = '';
-                updateCart();
-                document.getElementById('cart').style.display = 'none';
+                resetOrderForm();
             }
+        }
+
+        // RESETAR FORMULÁRIO DO PEDIDO
+        function resetOrderForm() {
+            cart = [];
+            userLocation = null;
+            
+            document.getElementById('customer-name').value = '';
+            document.getElementById('customer-address').value = '';
+            document.getElementById('order-type').value = 'pickup';
+            document.getElementById('address-method').value = 'gps';
+            
+            updateCart();
+            toggleDeliveryFields();
+            toggleAddressMethod();
+            
+            document.getElementById('cart').style.display = 'none';
+            document.getElementById('location-info').style.display = 'none';
+            document.getElementById('delivery-info').style.display = 'none';
+            document.getElementById('total-with-delivery').style.display = 'none';
         }
 
         // FECHAR MODAL
@@ -1721,12 +2393,25 @@
             closeModal();
         }
 
-        // INICIALIZAR
+        // ============================================
+        // INICIALIZAÇÃO
+        // ============================================
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Inicialmente esconder o carrinho se estiver vazio
             updateCart();
             document.getElementById('cart').style.display = 'none';
+            toggleDeliveryFields();
+            toggleAddressMethod();
+            
+            // Evento para calcular entrega quando endereço manual mudar
+            document.getElementById('customer-address').addEventListener('blur', function() {
+                if (document.getElementById('order-type').value === 'delivery' && 
+                    document.getElementById('address-method').value === 'manual') {
+                    calculateDeliveryFeeFromAddress();
+                }
+            });
         });
     </script>
 </body>
 </html>
+
