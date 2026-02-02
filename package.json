@@ -1,0 +1,18 @@
+{
+  "name": "bebcom-payments",
+  "version": "1.0.0",
+  "description": "API de pagamentos PIX para BebCom Lounge",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mercadopago": "^1.5.17",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
