@@ -23,6 +23,7 @@
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
             color: #f5f5f5;
             min-height: 100vh;
+            padding-bottom: 20px;
         }
 
         .header {
@@ -342,7 +343,7 @@
             z-index: 999;
             border: 1px solid #dc2626;
             backdrop-filter: blur(10px);
-            max-height: 85vh;
+            max-height: calc(100vh - 140px);
             overflow-y: auto;
         }
 
@@ -800,6 +801,7 @@
 
             .menu-page {
                 padding: 80px 15px 20px;
+                margin-bottom: 320px;
             }
 
             .products-container {
@@ -833,13 +835,14 @@
                 top: auto;
                 width: 100%;
                 border-radius: 12px 12px 0 0;
-                max-height: 70vh;
+                max-height: 50vh;
                 overflow-y: auto;
                 padding: 15px;
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
             }
             
             .cart-items {
-                max-height: 200px;
+                max-height: 150px;
             }
             
             .location-info {
@@ -901,6 +904,13 @@
             .cart-item > div {
                 width: 100%;
                 justify-content: space-between;
+            }
+        }
+
+        /* Media query para desktop quando carrinho tampa produtos */
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .menu-page {
+                padding-right: 420px;
             }
         }
     </style>
@@ -1012,7 +1022,7 @@
             </select>
             
             <div id="manual-address-section" class="hidden">
-                <input type="text" id="customer-address" class="cart-input" placeholder="Digite seu endereço completo">
+                <input type="text" id="customer-address" class="cart-input" placeholder="Digite seu endereço completo em Bauru-SP">
             </div>
             
             <div id="gps-section" class="hidden">
@@ -1107,9 +1117,9 @@
             
             // PONTO DE PARTIDA DO BEBCOM LOUNGE (coordenadas exatas do Google Maps)
             storeLocation: {
-                lat: -22.35892,
-                lng: -49.0987233,
-                address: "Avenida José Henrique Ferraz 18-10, Ourinhos - SP"
+                lat: -22.3145, // Coordenada aproximada de Bauru
+                lng: -49.0627, // Coordenada aproximada de Bauru
+                address: "BebCom Lounge, Bauru - SP"
             },
             
             deliveryRates: {
@@ -2368,16 +2378,35 @@
                     const data = await response.json();
                     if (data.display_name) {
                         let formattedAddress = data.display_name;
+                        
+                        // Remover duplicação da cidade
                         const addressParts = formattedAddress.split(', ');
-                        if (addressParts.length > 4) {
-                            formattedAddress = addressParts.slice(0, 4).join(', ') + ', Ourinhos - SP';
+                        let cleanAddress = [];
+                        
+                        // Filtrar partes únicas
+                        const seen = new Set();
+                        for (const part of addressParts) {
+                            const cleanPart = part.trim();
+                            if (!seen.has(cleanPart.toLowerCase())) {
+                                seen.add(cleanPart.toLowerCase());
+                                cleanAddress.push(cleanPart);
+                            }
+                        }
+                        
+                        // Garantir que termine com "Bauru - SP"
+                        formattedAddress = cleanAddress.join(', ');
+                        if (!formattedAddress.toLowerCase().includes('bauru')) {
+                            formattedAddress += ', Bauru - SP';
+                        } else {
+                            // Remover "SP" se já tiver "Bauru - SP"
+                            formattedAddress = formattedAddress.replace(/,\s*SP.*$/i, ', Bauru - SP');
                         }
                         
                         document.getElementById('customer-address').value = formattedAddress;
                         
                         const locationInfo = document.getElementById('location-info');
                         const currentText = locationInfo.innerHTML;
-                        locationInfo.innerHTML = currentText + `<br>🏠 ${formattedAddress.split(',')[0]}`;
+                        locationInfo.innerHTML = currentText + `<br>🏠 ${cleanAddress[0] || 'Endereço obtido'}`;
                         
                         return formattedAddress;
                     }
@@ -2386,7 +2415,7 @@
                 console.log("Info: Endereço por coordenadas não disponível");
             }
             
-            const coordsAddress = `📍 ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            const coordsAddress = `📍 Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)} - Bauru, SP`;
             document.getElementById('customer-address').value = coordsAddress;
             return coordsAddress;
         }
@@ -2512,12 +2541,14 @@
                 document.getElementById('customer-address').value = '';
                 state.userLocation = null;
                 document.getElementById('location-info').classList.add('hidden');
+                hideDeliveryInfo();
             } else {
                 manualSection.classList.add('hidden');
                 gpsSection.classList.remove('hidden');
                 document.getElementById('customer-address').value = '';
                 state.userLocation = null;
                 document.getElementById('location-info').classList.add('hidden');
+                hideDeliveryInfo();
             }
             validateForm();
         }
@@ -2573,18 +2604,29 @@
         }
 
         // ============================================
-        // SISTEMA DE PAGAMENTO
+        // SISTEMA DE PAGAMENTO - MERCADO PAGO REAL
         // ============================================
 
         // INICIALIZAR MERCADO PAGO
         async function initializeMercadoPago() {
             try {
+                // Verificar se as credenciais são válidas
+                if (!CONFIG.mercadoPago.publicKey || !CONFIG.mercadoPago.accessToken) {
+                    console.error('❌ Credenciais do Mercado Pago não configuradas');
+                    alert('⚠️ Sistema de pagamento não configurado. Contate o administrador.');
+                    return;
+                }
+
                 state.mercadoPagoInstance = new MercadoPago(CONFIG.mercadoPago.publicKey, {
                     locale: 'pt-BR'
                 });
+                
                 console.log('✅ Mercado Pago inicializado');
+                return true;
             } catch (error) {
-                console.warn('⚠️ Mercado Pago não pôde ser inicializado');
+                console.error('❌ Erro ao inicializar Mercado Pago:', error);
+                alert('⚠️ Erro ao inicializar sistema de pagamento. Verifique as credenciais.');
+                return false;
             }
         }
 
@@ -2700,115 +2742,309 @@
             return errors;
         }
 
-        // PROCESSAR PAGAMENTO PIX
+        // PROCESSAR PAGAMENTO PIX COM MERCADO PAGO REAL
         async function processPixPayment() {
-            // Simulação de PIX para demonstração
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            const paymentStatus = document.getElementById('payment-status');
-            paymentStatus.className = 'payment-status success';
-            paymentStatus.innerHTML = `
-                <div style="text-align: center;">
-                    <h4 style="margin-bottom: 15px; color: #28a745;">🧾 PIX GERADO</h4>
-                    
-                    <div style="width: 200px; height: 200px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin: 0 auto; border-radius: 10px;">
-                        <div style="text-align: center; color: #666;">
-                            <div style="font-size: 48px;">💰</div>
-                            <div>QR Code PIX</div>
-                        </div>
-                    </div>
-                    
-                    <p style="margin: 10px 0; font-size: 13px; color: #666;">
-                        Escaneie com seu app bancário
-                    </p>
-                    
-                    <button onclick="simulatePixPayment()" 
-                            style="background: #28a745; color: white; border: none; padding: 12px; 
-                                   border-radius: 8px; cursor: pointer; width: 100%; margin: 10px 0; font-weight: bold;">
-                        ✅ Simular Pagamento
-                    </button>
-                </div>
-            `;
-        }
+            try {
+                const orderData = prepareOrderData();
+                const customerName = document.getElementById('customer-name').value.trim();
+                
+                // Criar preferência de pagamento PIX
+                const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${CONFIG.mercadoPago.accessToken}`
+                    },
+                    body: JSON.stringify({
+                        items: orderData.items.map(item => ({
+                            title: item.name,
+                            quantity: item.quantity,
+                            currency_id: 'BRL',
+                            unit_price: item.price
+                        })),
+                        payer: {
+                            name: customerName,
+                            email: 'cliente@bebcom.com' // Em produção, pegar email do cliente
+                        },
+                        payment_methods: {
+                            excluded_payment_methods: [
+                                { id: 'credit_card' },
+                                { id: 'debit_card' },
+                                { id: 'ticket' }
+                            ],
+                            excluded_payment_types: [
+                                { id: 'credit_card' },
+                                { id: 'debit_card' },
+                                { id: 'ticket' }
+                            ],
+                            default_payment_method_id: 'pix',
+                            installments: 1
+                        },
+                        notification_url: 'https://seu-webhook.com/notifications', // Configure seu webhook
+                        statement_descriptor: 'BEBCOM LOUNGE',
+                        external_reference: orderData.orderId,
+                        expires: true,
+                        expiration_date_from: new Date().toISOString(),
+                        expiration_date_to: new Date(Date.now() + 30 * 60000).toISOString(), // 30 minutos
+                        back_urls: {
+                            success: window.location.href,
+                            failure: window.location.href,
+                            pending: window.location.href
+                        },
+                        auto_return: 'approved'
+                    })
+                });
 
-        // SIMULAR PAGAMENTO PIX
-        function simulatePixPayment() {
-            const paymentStatus = document.getElementById('payment-status');
-            paymentStatus.className = 'payment-status success';
-            paymentStatus.innerHTML = '✅ Pagamento PIX confirmado com sucesso!';
-            
-            confirmPayment();
-        }
+                if (!response.ok) {
+                    throw new Error('Erro ao criar pagamento PIX');
+                }
 
-        // PROCESSAR PAGAMENTO MERCADO PAGO
-        async function processMercadoPagoPayment() {
-            // Para demonstração, vamos mostrar um formulário simulado
-            const paymentStatus = document.getElementById('payment-status');
-            const container = document.getElementById('mercado-pago-container');
-            
-            container.classList.remove('hidden');
-            paymentStatus.classList.add('hidden');
-            
-            const orderData = prepareOrderData();
-            
-            container.innerHTML = `
-                <div style="text-align: center;">
-                    <h4 style="margin-bottom: 15px;">💳 Pagamento com Cartão</h4>
-                    
-                    <div class="mp-checkout-container">
-                        <div style="margin-bottom: 20px;">
-                            <div style="font-size: 24px; color: #009ee3;">💳</div>
-                            <div style="font-weight: bold; margin: 10px 0;">Mercado Pago</div>
-                            <div>Total: <strong>R$ ${orderData.total.toFixed(2)}</strong></div>
-                            <div style="font-size: 12px; color: #888; margin-top: 5px;">
-                                ${CONFIG.cardFees.credit} | ${CONFIG.cardFees.interestFree}
-                            </div>
+                const preference = await response.json();
+                
+                // Mostrar QR Code do PIX
+                const paymentStatus = document.getElementById('payment-status');
+                paymentStatus.className = 'payment-status success';
+                paymentStatus.innerHTML = `
+                    <div style="text-align: center;">
+                        <h4 style="margin-bottom: 15px; color: #28a745;">🧾 PIX GERADO</h4>
+                        
+                        <div style="width: 200px; height: 200px; background: white; display: flex; align-items: center; justify-content: center; margin: 0 auto; border-radius: 10px; padding: 10px;">
+                            <img src="${preference.point_of_interaction.transaction_data.qr_code_base64 ? 
+                                `data:image/png;base64,${preference.point_of_interaction.transaction_data.qr_code_base64}` : 
+                                'https://www.mercadopago.com.br/org-img/MP3/brand/es/logos/pix/logo_pix_payment_seal.png'}" 
+                                alt="QR Code PIX" style="width: 180px; height: 180px;">
                         </div>
                         
-                        <div class="mp-card-form">
-                            <div class="mp-form-group">
-                                <label>Número do cartão</label>
-                                <input type="text" placeholder="1234 5678 9012 3456" maxlength="19">
-                            </div>
-                            
-                            <div class="mp-row">
-                                <div class="mp-form-group">
-                                    <label>Validade</label>
-                                    <input type="text" placeholder="MM/AA" maxlength="5">
-                                </div>
-                                <div class="mp-form-group">
-                                    <label>CVV</label>
-                                    <input type="text" placeholder="123" maxlength="4">
-                                </div>
-                            </div>
-                            
-                            <div class="mp-form-group">
-                                <label>Nome no cartão</label>
-                                <input type="text" placeholder="Como está no cartão">
-                            </div>
-                            
-                            <button onclick="simulateCardPayment()"
-                                    style="background: #009ee3; color: white; border: none; padding: 15px; 
-                                           border-radius: 8px; cursor: pointer; width: 100%; margin: 20px 0; font-weight: bold;">
-                                💳 Pagar R$ ${orderData.total.toFixed(2)}
-                            </button>
+                        <p style="margin: 10px 0; font-size: 13px; color: #666;">
+                            Escaneie com seu app bancário
+                        </p>
+                        
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin: 10px 0;">
+                            <strong>Código PIX:</strong><br>
+                            <small style="word-break: break-all; font-family: monospace;">${preference.point_of_interaction.transaction_data.qr_code}</small>
                         </div>
+                        
+                        <div style="background: #fff3cd; padding: 10px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #ffc107;">
+                            ⏱️ <strong>Válido por 30 minutos</strong><br>
+                            <small>Após escanear, aguarde a confirmação automática</small>
+                        </div>
+                        
+                        <button onclick="checkMercadoPagoStatus('${preference.id}')" 
+                                style="background: #28a745; color: white; border: none; padding: 12px; 
+                                       border-radius: 8px; cursor: pointer; width: 100%; margin: 10px 0; font-weight: bold;">
+                            ✅ Verificar Status do Pagamento
+                        </button>
                     </div>
-                </div>
-            `;
+                `;
+                
+                // Iniciar verificação periódica do status
+                startPaymentStatusCheck(preference.id);
+                
+            } catch (error) {
+                console.error('Erro no PIX:', error);
+                throw new Error('Erro ao processar pagamento PIX. Tente novamente.');
+            }
         }
 
-        // SIMULAR PAGAMENTO COM CARTÃO
-        function simulateCardPayment() {
-            const paymentStatus = document.getElementById('payment-status');
-            const container = document.getElementById('mercado-pago-container');
+        // VERIFICAR STATUS DO PAGAMENTO MERCADO PAGO
+        async function checkMercadoPagoStatus(preferenceId) {
+            try {
+                const response = await fetch(`https://api.mercadopago.com/v1/payments/search?external_reference=${preferenceId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${CONFIG.mercadoPago.accessToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.results && data.results.length > 0) {
+                        const payment = data.results[0];
+                        
+                        if (payment.status === 'approved') {
+                            const paymentStatus = document.getElementById('payment-status');
+                            paymentStatus.className = 'payment-status success';
+                            paymentStatus.innerHTML = '✅ Pagamento PIX confirmado com sucesso!';
+                            
+                            confirmPayment();
+                            return true;
+                        } else if (payment.status === 'pending') {
+                            alert('⌛ Pagamento ainda pendente. Aguarde a confirmação.');
+                        } else if (payment.status === 'rejected') {
+                            alert('❌ Pagamento rejeitado. Tente novamente.');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao verificar status:', error);
+            }
             
-            container.classList.add('hidden');
-            paymentStatus.classList.remove('hidden');
-            paymentStatus.className = 'payment-status success';
-            paymentStatus.innerHTML = '✅ Pagamento com cartão confirmado!';
+            return false;
+        }
+
+        // INICIAR VERIFICAÇÃO PERIÓDICA DO STATUS
+        function startPaymentStatusCheck(preferenceId) {
+            const checkInterval = setInterval(async () => {
+                const isPaid = await checkMercadoPagoStatus(preferenceId);
+                if (isPaid) {
+                    clearInterval(checkInterval);
+                }
+            }, 10000); // Verificar a cada 10 segundos
             
-            confirmPayment();
+            // Parar após 30 minutos (tempo de expiração do PIX)
+            setTimeout(() => {
+                clearInterval(checkInterval);
+                const paymentStatus = document.getElementById('payment-status');
+                if (paymentStatus && !state.paymentConfirmed) {
+                    paymentStatus.className = 'payment-status error';
+                    paymentStatus.innerHTML = '❌ PIX expirado. Gere um novo código.';
+                    document.getElementById('pay-button-text').innerHTML = '🧾 Pagar com PIX';
+                    document.getElementById('pay-button').disabled = false;
+                    state.paymentProcessing = false;
+                }
+            }, 30 * 60 * 1000); // 30 minutos
+        }
+
+        // PROCESSAR PAGAMENTO COM CARTÃO MERCADO PAGO REAL
+        async function processMercadoPagoPayment() {
+            try {
+                const orderData = prepareOrderData();
+                const customerName = document.getElementById('customer-name').value.trim();
+                
+                // Criar preferência de pagamento
+                const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${CONFIG.mercadoPago.accessToken}`
+                    },
+                    body: JSON.stringify({
+                        items: orderData.items.map(item => ({
+                            title: item.name,
+                            quantity: item.quantity,
+                            currency_id: 'BRL',
+                            unit_price: item.price
+                        })),
+                        payer: {
+                            name: customerName,
+                            email: 'cliente@bebcom.com' // Em produção, pegar email do cliente
+                        },
+                        payment_methods: {
+                            excluded_payment_methods: [
+                                { id: 'pix' },
+                                { id: 'ticket' }
+                            ],
+                            excluded_payment_types: [
+                                { id: 'pix' },
+                                { id: 'ticket' }
+                            ],
+                            installments: 12
+                        },
+                        notification_url: 'https://seu-webhook.com/notifications', // Configure seu webhook
+                        statement_descriptor: 'BEBCOM LOUNGE',
+                        external_reference: orderData.orderId,
+                        back_urls: {
+                            success: window.location.href + '?payment=success',
+                            failure: window.location.href + '?payment=failure',
+                            pending: window.location.href + '?payment=pending'
+                        },
+                        auto_return: 'approved'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao criar pagamento com cartão');
+                }
+
+                const preference = await response.json();
+                
+                // Criar botão de checkout do Mercado Pago
+                const container = document.getElementById('mercado-pago-container');
+                const paymentStatus = document.getElementById('payment-status');
+                
+                container.classList.remove('hidden');
+                paymentStatus.classList.add('hidden');
+                
+                // Inicializar checkout
+                const bricksBuilder = state.mercadoPagoInstance.bricks();
+                
+                const settings = {
+                    initialization: {
+                        amount: orderData.total,
+                        preferenceId: preference.id,
+                    },
+                    customization: {
+                        visual: {
+                            style: {
+                                theme: 'dark' // ou 'default', 'bootstrap', 'flat'
+                            }
+                        },
+                        paymentMethods: {
+                            creditCard: 'all',
+                            debitCard: 'all'
+                        }
+                    },
+                    callbacks: {
+                        onReady: () => {
+                            console.log('Checkout pronto');
+                        },
+                        onSubmit: (formData) => {
+                            // formData contém os dados do cartão
+                            return new Promise((resolve, reject) => {
+                                // O Mercado Pago processa o pagamento automaticamente
+                                // Após o processamento, os callbacks de redirecionamento serão chamados
+                                resolve();
+                            });
+                        },
+                        onError: (error) => {
+                            console.error('Erro no checkout:', error);
+                            alert('Erro ao processar pagamento: ' + error.message);
+                        }
+                    }
+                };
+                
+                // Renderizar o checkout
+                const mpCheckout = await bricksBuilder.create('cardPayment', 'mercado-pago-container', settings);
+                
+                // Limpar container
+                container.innerHTML = '';
+                
+                // Adicionar botão de checkout
+                const checkoutButton = state.mercadoPagoInstance.checkout({
+                    preference: {
+                        id: preference.id
+                    },
+                    autoOpen: true // Abrir automaticamente
+                });
+                
+                // Verificar parâmetros de retorno na URL
+                checkPaymentReturn();
+                
+            } catch (error) {
+                console.error('Erro no cartão:', error);
+                throw new Error('Erro ao processar pagamento com cartão. Tente novamente.');
+            }
+        }
+
+        // VERIFICAR RETORNO DO PAGAMENTO
+        function checkPaymentReturn() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentStatus = urlParams.get('payment');
+            
+            if (paymentStatus === 'success') {
+                const paymentStatusDiv = document.getElementById('payment-status');
+                paymentStatusDiv.classList.remove('hidden');
+                paymentStatusDiv.className = 'payment-status success';
+                paymentStatusDiv.innerHTML = '✅ Pagamento com cartão confirmado!';
+                
+                confirmPayment();
+                
+                // Limpar parâmetros da URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (paymentStatus === 'failure') {
+                alert('❌ Pagamento com cartão falhou. Tente novamente.');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         }
 
         // PROCESSAR PAGAMENTO LOCAL (RETIRADA)
@@ -2984,7 +3220,7 @@
                     const address = document.getElementById('customer-address').value;
                     message += `🏠 *Endereço:* ${address}\n`;
                 }
-                message += `\n🚚 *Ponto de Partida:*\n${CONFIG.storeLocation.address}\n`;
+                message += `\n🚚 *Ponto de Partida:*\nBebCom Lounge, Bauru - SP\n`;
             }
             
             message += `💳 *Pagamento:* `;
@@ -3146,8 +3382,10 @@
                     closeModal();
                 }
             });
+            
+            // Verificar retorno de pagamento na carga da página
+            checkPaymentReturn();
         });
     </script>
 </body>
 </html>
-
