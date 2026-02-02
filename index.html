@@ -70,7 +70,7 @@
             transform: translateX(-5px);
         }
 
-        /* PÁGINA INICIAL - HOME */
+        /* PÁGINA INICIAL - Home */
         .home-page {
             display: flex;
             flex-direction: column;
@@ -1115,11 +1115,11 @@
                 accessToken: 'APP_USR-8326438021246657-020121-ccc94cd396e2d69d1f86657f5292db55-49438812'
             },
             
-            // PONTO DE PARTIDA DO BEBCOM LOUNGE (coordenadas exatas do Google Maps)
+            // COORDENADAS EXATAS DO BEBCOM LOUNGE (Google Maps)
             storeLocation: {
-                lat: -22.3145, // Coordenada aproximada de Bauru
-                lng: -49.0627, // Coordenada aproximada de Bauru
-                address: "BebCom Lounge, Bauru - SP"
+                lat: -22.35892,  // Coordenada exata do BebCom Lounge
+                lng: -49.0987233, // Coordenada exata do BebCom Lounge
+                address: "R. José Henrique Ferraz, 18-10 - Centro, Bauru - SP"
             },
             
             deliveryRates: {
@@ -1300,7 +1300,7 @@
                 { 
                     name: 'Brahma Zero', 
                     description: 'Cerveja sem álcool',
-                    modalDescription: 'A Brahma 0,0% é a escolha inteligente para quem quer o sabor autêntico da cerveja em qualquer momento do dia, sem restrições. Através de um processo tecnológico de ponta, o álcool é removido preservando o equilíbrio entre o malte e o frescor que só a Brahma tem. É a companhia ideal para almoços de trabalho, treinos ou para quem assume o volume com responsabilidade e prazer. Brahma 0,0%: o sabor que não para.',
+                    modalDescription: 'A Brahma 0,0% é a escolha inteligente para quem quer o sabor autêntico da cerveja em qualquer momento do día, sem restrições. Através de um processo tecnológico de ponta, o álcool é removido preservando o equilíbrio entre o malte e o frescor que só a Brahma tem. É a companhia ideal para almoços de trabalho, treinos ou para quem assume o volume com responsabilidade e prazer. Brahma 0,0%: o sabor que não para.',
                     imageUrl: 'https://github.com/Caerod1980/Imagens-Site-Bebcom/blob/b1f12a43451f156b4e0af0dc22e8fe066f756854/Brahma%20zero%20lata.png?raw=true',
                     price: 5.00
                 },
@@ -2087,7 +2087,8 @@
             selectedPaymentMethod: null,
             paymentConfirmed: false,
             paymentProcessing: false,
-            mercadoPagoInstance: null
+            mercadoPagoInstance: null,
+            currentOrderId: null
         };
 
         // ============================================
@@ -2525,6 +2526,19 @@
             return state.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
         }
 
+        // CALCULAR TOTAL COM ENTREGA
+        function calculateTotalWithDelivery() {
+            const subtotal = calculateSubtotal();
+            const orderType = document.getElementById('order-type').value;
+            
+            if (orderType === 'delivery') {
+                const deliveryFee = parseFloat(document.getElementById('delivery-fee').textContent) || 0;
+                return subtotal + deliveryFee;
+            }
+            
+            return subtotal;
+        }
+
         // ============================================
         // CONTROLE DE INTERFACE
         // ============================================
@@ -2748,6 +2762,33 @@
                 const orderData = prepareOrderData();
                 const customerName = document.getElementById('customer-name').value.trim();
                 
+                // Calcular total incluindo entrega se necessário
+                const totalAmount = calculateTotalWithDelivery();
+                
+                // Criar itens para o pagamento
+                const items = orderData.items.map(item => ({
+                    title: item.name.substring(0, 50), // Limitar tamanho
+                    quantity: item.quantity,
+                    currency_id: 'BRL',
+                    unit_price: parseFloat(item.price.toFixed(2))
+                }));
+                
+                // Adicionar taxa de entrega se for entrega
+                if (orderData.orderType === 'delivery') {
+                    const deliveryFee = parseFloat(document.getElementById('delivery-fee').textContent) || 0;
+                    if (deliveryFee > 0) {
+                        items.push({
+                            title: 'Taxa de Entrega',
+                            quantity: 1,
+                            currency_id: 'BRL',
+                            unit_price: parseFloat(deliveryFee.toFixed(2))
+                        });
+                    }
+                }
+                
+                // Gerar ID único para o pedido
+                state.currentOrderId = 'BEB' + Date.now().toString().slice(-6);
+                
                 // Criar preferência de pagamento PIX
                 const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
                     method: 'POST',
@@ -2756,12 +2797,7 @@
                         'Authorization': `Bearer ${CONFIG.mercadoPago.accessToken}`
                     },
                     body: JSON.stringify({
-                        items: orderData.items.map(item => ({
-                            title: item.name,
-                            quantity: item.quantity,
-                            currency_id: 'BRL',
-                            unit_price: item.price
-                        })),
+                        items: items,
                         payer: {
                             name: customerName,
                             email: 'cliente@bebcom.com' // Em produção, pegar email do cliente
@@ -2780,9 +2816,8 @@
                             default_payment_method_id: 'pix',
                             installments: 1
                         },
-                        notification_url: 'https://seu-webhook.com/notifications', // Configure seu webhook
                         statement_descriptor: 'BEBCOM LOUNGE',
-                        external_reference: orderData.orderId,
+                        external_reference: state.currentOrderId,
                         expires: true,
                         expiration_date_from: new Date().toISOString(),
                         expiration_date_to: new Date(Date.now() + 30 * 60000).toISOString(), // 30 minutos
@@ -2796,7 +2831,8 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Erro ao criar pagamento PIX');
+                    const errorData = await response.json();
+                    throw new Error(`Erro ao criar pagamento PIX: ${JSON.stringify(errorData)}`);
                 }
 
                 const preference = await response.json();
@@ -2804,46 +2840,78 @@
                 // Mostrar QR Code do PIX
                 const paymentStatus = document.getElementById('payment-status');
                 paymentStatus.className = 'payment-status success';
-                paymentStatus.innerHTML = `
-                    <div style="text-align: center;">
-                        <h4 style="margin-bottom: 15px; color: #28a745;">🧾 PIX GERADO</h4>
-                        
-                        <div style="width: 200px; height: 200px; background: white; display: flex; align-items: center; justify-content: center; margin: 0 auto; border-radius: 10px; padding: 10px;">
-                            <img src="${preference.point_of_interaction.transaction_data.qr_code_base64 ? 
-                                `data:image/png;base64,${preference.point_of_interaction.transaction_data.qr_code_base64}` : 
-                                'https://www.mercadopago.com.br/org-img/MP3/brand/es/logos/pix/logo_pix_payment_seal.png'}" 
-                                alt="QR Code PIX" style="width: 180px; height: 180px;">
-                        </div>
-                        
-                        <p style="margin: 10px 0; font-size: 13px; color: #666;">
-                            Escaneie com seu app bancário
-                        </p>
-                        
-                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin: 10px 0;">
-                            <strong>Código PIX:</strong><br>
-                            <small style="word-break: break-all; font-family: monospace;">${preference.point_of_interaction.transaction_data.qr_code}</small>
-                        </div>
-                        
-                        <div style="background: #fff3cd; padding: 10px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #ffc107;">
-                            ⏱️ <strong>Válido por 30 minutos</strong><br>
-                            <small>Após escanear, aguarde a confirmação automática</small>
-                        </div>
-                        
-                        <button onclick="checkMercadoPagoStatus('${preference.id}')" 
-                                style="background: #28a745; color: white; border: none; padding: 12px; 
-                                       border-radius: 8px; cursor: pointer; width: 100%; margin: 10px 0; font-weight: bold;">
-                            ✅ Verificar Status do Pagamento
-                        </button>
-                    </div>
-                `;
                 
-                // Iniciar verificação periódica do status
-                startPaymentStatusCheck(preference.id);
+                if (preference.point_of_interaction && preference.point_of_interaction.transaction_data) {
+                    const pixData = preference.point_of_interaction.transaction_data;
+                    
+                    paymentStatus.innerHTML = `
+                        <div style="text-align: center;">
+                            <h4 style="margin-bottom: 15px; color: #28a745;">🧾 PIX GERADO</h4>
+                            
+                            <div style="width: 200px; height: 200px; background: white; display: flex; align-items: center; justify-content: center; margin: 0 auto; border-radius: 10px; padding: 10px;">
+                                <img src="${pixData.qr_code_base64 ? 
+                                    `data:image/png;base64,${pixData.qr_code_base64}` : 
+                                    'https://www.mercadopago.com.br/org-img/MP3/brand/es/logos/pix/logo_pix_payment_seal.png'}" 
+                                    alt="QR Code PIX" style="width: 180px; height: 180px;">
+                            </div>
+                            
+                            <p style="margin: 10px 0; font-size: 13px; color: #666;">
+                                Escaneie com seu app bancário
+                            </p>
+                            
+                            <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin: 10px 0;">
+                                <strong>Código PIX:</strong><br>
+                                <small style="word-break: break-all; font-family: monospace;">${pixData.qr_code || 'Código não disponível'}</small>
+                            </div>
+                            
+                            <div style="background: #fff3cd; padding: 10px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #ffc107;">
+                                ⏱️ <strong>Válido por 30 minutos</strong><br>
+                                <small>Após escanear, aguarde a confirmação automática</small>
+                            </div>
+                            
+                            <button onclick="checkMercadoPagoStatus('${preference.id}')" 
+                                    style="background: #28a745; color: white; border: none; padding: 12px; 
+                                           border-radius: 8px; cursor: pointer; width: 100%; margin: 10px 0; font-weight: bold;">
+                                ✅ Verificar Status do Pagamento
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Salvar preferência ID no estado
+                    state.currentPreferenceId = preference.id;
+                    
+                    // Iniciar verificação periódica do status
+                    startPaymentStatusCheck(preference.id);
+                    
+                } else {
+                    // Se não tiver dados PIX, usar checkout normal
+                    paymentStatus.innerHTML = `
+                        <div style="text-align: center;">
+                            <h4 style="margin-bottom: 15px; color: #28a745;">PIX Configurado</h4>
+                            <p>O pagamento PIX está pronto. Clique abaixo para abrir o checkout:</p>
+                            <button onclick="openMercadoPagoCheckout('${preference.id}')" 
+                                    style="background: #009ee3; color: white; border: none; padding: 12px; 
+                                           border-radius: 8px; cursor: pointer; width: 100%; margin: 10px 0; font-weight: bold;">
+                                🧾 Abrir Pagamento PIX
+                            </button>
+                        </div>
+                    `;
+                }
                 
             } catch (error) {
                 console.error('Erro no PIX:', error);
-                throw new Error('Erro ao processar pagamento PIX. Tente novamente.');
+                throw new Error('Erro ao processar pagamento PIX: ' + error.message);
             }
+        }
+
+        // ABRIR CHECKOUT MERCADO PAGO
+        function openMercadoPagoCheckout(preferenceId) {
+            const checkout = state.mercadoPagoInstance.checkout({
+                preference: {
+                    id: preferenceId
+                },
+                autoOpen: true
+            });
         }
 
         // VERIFICAR STATUS DO PAGAMENTO MERCADO PAGO
@@ -2872,6 +2940,7 @@
                             alert('⌛ Pagamento ainda pendente. Aguarde a confirmação.');
                         } else if (payment.status === 'rejected') {
                             alert('❌ Pagamento rejeitado. Tente novamente.');
+                            resetPaymentUI();
                         }
                     }
                 }
@@ -2911,6 +2980,33 @@
                 const orderData = prepareOrderData();
                 const customerName = document.getElementById('customer-name').value.trim();
                 
+                // Calcular total incluindo entrega se necessário
+                const totalAmount = calculateTotalWithDelivery();
+                
+                // Criar itens para o pagamento
+                const items = orderData.items.map(item => ({
+                    title: item.name.substring(0, 50),
+                    quantity: item.quantity,
+                    currency_id: 'BRL',
+                    unit_price: parseFloat(item.price.toFixed(2))
+                }));
+                
+                // Adicionar taxa de entrega se for entrega
+                if (orderData.orderType === 'delivery') {
+                    const deliveryFee = parseFloat(document.getElementById('delivery-fee').textContent) || 0;
+                    if (deliveryFee > 0) {
+                        items.push({
+                            title: 'Taxa de Entrega',
+                            quantity: 1,
+                            currency_id: 'BRL',
+                            unit_price: parseFloat(deliveryFee.toFixed(2))
+                        });
+                    }
+                }
+                
+                // Gerar ID único para o pedido
+                state.currentOrderId = 'BEB' + Date.now().toString().slice(-6);
+                
                 // Criar preferência de pagamento
                 const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
                     method: 'POST',
@@ -2919,15 +3015,10 @@
                         'Authorization': `Bearer ${CONFIG.mercadoPago.accessToken}`
                     },
                     body: JSON.stringify({
-                        items: orderData.items.map(item => ({
-                            title: item.name,
-                            quantity: item.quantity,
-                            currency_id: 'BRL',
-                            unit_price: item.price
-                        })),
+                        items: items,
                         payer: {
                             name: customerName,
-                            email: 'cliente@bebcom.com' // Em produção, pegar email do cliente
+                            email: 'cliente@bebcom.com'
                         },
                         payment_methods: {
                             excluded_payment_methods: [
@@ -2940,11 +3031,10 @@
                             ],
                             installments: 12
                         },
-                        notification_url: 'https://seu-webhook.com/notifications', // Configure seu webhook
                         statement_descriptor: 'BEBCOM LOUNGE',
-                        external_reference: orderData.orderId,
+                        external_reference: state.currentOrderId,
                         back_urls: {
-                            success: window.location.href + '?payment=success',
+                            success: window.location.href + '?payment=success&type=card&order=' + state.currentOrderId,
                             failure: window.location.href + '?payment=failure',
                             pending: window.location.href + '?payment=pending'
                         },
@@ -2953,76 +3043,26 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Erro ao criar pagamento com cartão');
+                    const errorData = await response.json();
+                    throw new Error(`Erro ao criar pagamento: ${JSON.stringify(errorData)}`);
                 }
 
                 const preference = await response.json();
                 
-                // Criar botão de checkout do Mercado Pago
-                const container = document.getElementById('mercado-pago-container');
-                const paymentStatus = document.getElementById('payment-status');
-                
-                container.classList.remove('hidden');
-                paymentStatus.classList.add('hidden');
-                
-                // Inicializar checkout
-                const bricksBuilder = state.mercadoPagoInstance.bricks();
-                
-                const settings = {
-                    initialization: {
-                        amount: orderData.total,
-                        preferenceId: preference.id,
-                    },
-                    customization: {
-                        visual: {
-                            style: {
-                                theme: 'dark' // ou 'default', 'bootstrap', 'flat'
-                            }
-                        },
-                        paymentMethods: {
-                            creditCard: 'all',
-                            debitCard: 'all'
-                        }
-                    },
-                    callbacks: {
-                        onReady: () => {
-                            console.log('Checkout pronto');
-                        },
-                        onSubmit: (formData) => {
-                            // formData contém os dados do cartão
-                            return new Promise((resolve, reject) => {
-                                // O Mercado Pago processa o pagamento automaticamente
-                                // Após o processamento, os callbacks de redirecionamento serão chamados
-                                resolve();
-                            });
-                        },
-                        onError: (error) => {
-                            console.error('Erro no checkout:', error);
-                            alert('Erro ao processar pagamento: ' + error.message);
-                        }
-                    }
-                };
-                
-                // Renderizar o checkout
-                const mpCheckout = await bricksBuilder.create('cardPayment', 'mercado-pago-container', settings);
-                
-                // Limpar container
-                container.innerHTML = '';
-                
-                // Adicionar botão de checkout
-                const checkoutButton = state.mercadoPagoInstance.checkout({
+                // Abrir checkout do Mercado Pago
+                const checkout = state.mercadoPagoInstance.checkout({
                     preference: {
                         id: preference.id
                     },
-                    autoOpen: true // Abrir automaticamente
+                    autoOpen: true
                 });
                 
-                // Verificar parâmetros de retorno na URL
-                checkPaymentReturn();
+                // Salvar preferência ID
+                state.currentPreferenceId = preference.id;
                 
             } catch (error) {
                 console.error('Erro no cartão:', error);
-                throw new Error('Erro ao processar pagamento com cartão. Tente novamente.');
+                throw new Error('Erro ao processar pagamento com cartão: ' + error.message);
             }
         }
 
@@ -3030,19 +3070,21 @@
         function checkPaymentReturn() {
             const urlParams = new URLSearchParams(window.location.search);
             const paymentStatus = urlParams.get('payment');
+            const orderId = urlParams.get('order');
             
             if (paymentStatus === 'success') {
                 const paymentStatusDiv = document.getElementById('payment-status');
                 paymentStatusDiv.classList.remove('hidden');
                 paymentStatusDiv.className = 'payment-status success';
-                paymentStatusDiv.innerHTML = '✅ Pagamento com cartão confirmado!';
+                paymentStatusDiv.innerHTML = '✅ Pagamento confirmado com sucesso!';
                 
                 confirmPayment();
                 
                 // Limpar parâmetros da URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             } else if (paymentStatus === 'failure') {
-                alert('❌ Pagamento com cartão falhou. Tente novamente.');
+                alert('❌ Pagamento falhou. Tente novamente.');
+                resetPaymentUI();
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
@@ -3097,6 +3139,8 @@
             state.selectedPaymentMethod = null;
             state.paymentConfirmed = false;
             state.paymentProcessing = false;
+            state.currentOrderId = null;
+            state.currentPreferenceId = null;
             
             resetPaymentUI();
         }
@@ -3184,10 +3228,15 @@
                 const encodedMessage = encodeURIComponent(message);
                 const whatsappUrl = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodedMessage}`;
                 
+                // Abrir WhatsApp em nova aba
                 window.open(whatsappUrl, '_blank');
                 
-                resetOrder();
-                alert('✅ Pedido enviado! Aguarde nosso contato no WhatsApp.');
+                // Feedback para o usuário
+                alert('✅ Pedido enviado! Aguarde nosso contato no WhatsApp.\n\nO carrinho foi mantido caso precise fazer outro pedido.');
+                
+                // Não resetar o pedido - manter carrinho para possível novo pedido
+                // Apenas resetar estado de pagamento
+                resetPaymentState();
                 
             } catch (error) {
                 console.error('Erro ao enviar:', error);
@@ -3201,8 +3250,12 @@
             const addressMethod = document.getElementById('address-method').value;
             const subtotal = calculateSubtotal();
             
+            // Usar orderId se existir, senão criar um novo
+            const orderId = state.currentOrderId || 'BEB' + Date.now().toString().slice(-6);
+            
             let message = `*🍹 PEDIDO BEBCOM LOUNGE - DELIVERY 🚚*\n`;
             message += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            message += `📋 *Nº do Pedido:* ${orderId}\n`;
             message += `👤 *Cliente:* ${customerName}\n`;
             message += `📦 *Tipo:* ${orderType === 'delivery' ? 'ENTREGA' : 'RETIRADA NO LOCAL'}\n`;
             
@@ -3220,7 +3273,7 @@
                     const address = document.getElementById('customer-address').value;
                     message += `🏠 *Endereço:* ${address}\n`;
                 }
-                message += `\n🚚 *Ponto de Partida:*\nBebCom Lounge, Bauru - SP\n`;
+                message += `\n🚚 *Ponto de Partida:*\n${CONFIG.storeLocation.address}\n`;
             }
             
             message += `💳 *Pagamento:* `;
@@ -3255,6 +3308,10 @@
                 message += `📏 *Distância:* ${distance} km\n`;
                 message += `🚚 *Taxa de Entrega:* R$ ${deliveryFee.toFixed(2)}\n`;
                 message += `💳 *Total Geral:* R$ ${total.toFixed(2)}\n`;
+                
+                if (deliveryFee === 0 && subtotal >= CONFIG.deliveryRates.freeDeliveryMin) {
+                    message += `🎉 *Frete Grátis!* (Pedido acima de R$${CONFIG.deliveryRates.freeDeliveryMin})\n`;
+                }
             }
             
             message += `\n━━━━━━━━━━━━━━━━━━━━━━━━\n`;
@@ -3293,17 +3350,28 @@
                 paymentMethod: state.selectedPaymentMethod,
                 paymentConfirmed: state.paymentConfirmed,
                 timestamp: new Date().toISOString(),
-                orderId: `BEB${Date.now().toString().slice(-6)}`
+                orderId: state.currentOrderId || `BEB${Date.now().toString().slice(-6)}`
             };
         }
 
-        // RESETAR PEDIDO
+        // LIMPAR CARRINHO
+        function clearCart() {
+            if (state.cart.length === 0) return;
+            
+            if (confirm('Tem certeza que deseja limpar o carrinho?')) {
+                resetOrder();
+            }
+        }
+
+        // RESETAR PEDIDO COMPLETO
         function resetOrder() {
             state.cart = [];
             state.userLocation = null;
             state.selectedPaymentMethod = null;
             state.paymentConfirmed = false;
             state.paymentProcessing = false;
+            state.currentOrderId = null;
+            state.currentPreferenceId = null;
             
             document.getElementById('customer-name').value = '';
             document.getElementById('customer-address').value = '';
@@ -3318,15 +3386,6 @@
             document.getElementById('delivery-info').classList.add('hidden');
             document.getElementById('total-with-delivery').classList.add('hidden');
             document.getElementById('location-info').classList.add('hidden');
-        }
-
-        // LIMPAR CARRINHO
-        function clearCart() {
-            if (state.cart.length === 0) return;
-            
-            if (confirm('Tem certeza que deseja limpar o carrinho?')) {
-                resetOrder();
-            }
         }
 
         // ============================================
@@ -3385,6 +3444,28 @@
             
             // Verificar retorno de pagamento na carga da página
             checkPaymentReturn();
+            
+            // Carregar carrinho do localStorage se existir
+            try {
+                const savedCart = localStorage.getItem('bebcom_cart');
+                if (savedCart) {
+                    state.cart = JSON.parse(savedCart);
+                    updateCart();
+                }
+            } catch (e) {
+                console.log('Não foi possível carregar carrinho salvo');
+            }
+            
+            // Salvar carrinho no localStorage sempre que atualizar
+            const originalUpdateCart = updateCart;
+            updateCart = function() {
+                originalUpdateCart();
+                try {
+                    localStorage.setItem('bebcom_cart', JSON.stringify(state.cart));
+                } catch (e) {
+                    console.log('Não foi possível salvar carrinho');
+                }
+            };
         });
     </script>
 </body>
