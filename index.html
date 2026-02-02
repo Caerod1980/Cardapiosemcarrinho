@@ -3262,6 +3262,8 @@
             if (orderType === 'delivery') {
                 if (addressMethod === 'gps') {
                     message += `📍 *Localização via GPS:*\n`;
+                    message += `Lat: ${state.userLocation.lat.toFixed(6)}\n`;
+                    message += `Lng: ${state.userLocation.lng.toFixed(6)}\n`;
                     
                     const address = await getAddressFromCoordinates(state.userLocation.lat, state.userLocation.lng);
                     if (address && !address.includes('📍')) {
@@ -3295,7 +3297,7 @@
                 message += `   ${item.quantity} × R$ ${item.price.toFixed(2)} = R$ ${itemTotal.toFixed(2)}`;
             });
             
-            message += `\n\n━━━━━━━━━━━━━━━━━━━━\n`;
+            message += `\n\n━━━━━━━━━━━━━━━━━━━━━━\n`;
             message += `💰 *Subtotal:* R$ ${subtotal.toFixed(2)}\n`;
             
             if (orderType === 'delivery') {
@@ -3314,6 +3316,7 @@
             
             message += `\n━━━━━━━━━━━━━━━━━━━━━━\n`;
             message += `✅ *Pedido confirmado!*\n`;
+            message += `⏱️ *Tempo estimado:* ${orderType === 'delivery' ? '40-60 minutos' : '15-20 minutos'}\n`;
             message += `📞 *Dúvidas:* (14) 99613-0369\n`;
             message += `\n🎉 *Obrigado pela preferência!*\n`;
             message += `_BebCom Lounge - Seu momento, nossa companhia_`;
@@ -3467,4 +3470,5 @@
     </script>
 </body>
 </html>
+
 
